@@ -197,7 +197,7 @@ namespace SistemaGestionAgricola.Controllers
 
         // PUT: api/Agricultores/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAgricultor(int id, UpdateAgricultorDTO updateAgricultorDTO)
+        public async Task<IActionResult> utAgricultor(int id, UpdateAgricultorDTO updateAgricultorDTO)
         {
             try
             {
