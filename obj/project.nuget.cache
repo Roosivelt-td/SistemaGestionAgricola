@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "lQweP+VRPx8=",
+  "dgSpecHash": "XGacK/CPy/E=",
   "success": true,
-  "projectFilePath": "/home/roosivelt/Documentos/Ing. SIstemas/S-6/Programacion de servicios web/Final/SistemaGestionAgricola/SistemaGestionAgricola.csproj",
+  "projectFilePath": "/home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/SistemaGestionAgricola.csproj",
   "expectedPackageFiles": [
     "/home/roosivelt/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",
     "/home/roosivelt/.nuget/packages/microsoft.aspnetcore.authentication.jwtbearer/9.0.10/microsoft.aspnetcore.authentication.jwtbearer.9.0.10.nupkg.sha512",

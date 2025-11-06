@@ -30,6 +30,8 @@ namespace SistemaGestionAgricola.Models.Entities
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
 
+        // Navigation property para Agricultor 
+        public virtual Agricultor? Agricultor { get; set; }
         public Usuario()
         {
             // Establecer valores por defecto en el constructor
