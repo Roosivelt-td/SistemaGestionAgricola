@@ -1,0 +1,40 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace SistemaGestionAgricola.Models.Entities
+{
+    public class Usuario
+    {
+        [Key]
+        public int Id { get; set; }
+
+        [Required]
+        [EmailAddress]
+        [MaxLength(255)]
+        public string Email { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(255)]
+        public string Password { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(20)]
+        public string Rol { get; set; } = "agricultor"; // Valor por defecto
+
+        [Required]
+        [MaxLength(100)]
+        public string Nombre { get; set; } = string.Empty;
+
+        [MaxLength(20)]
+        public string? Telefono { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+
+        public Usuario()
+        {
+            // Establecer valores por defecto en el constructor
+            CreatedAt = DateTime.UtcNow;
+            UpdatedAt = DateTime.UtcNow;
+        }
+    }
+}
