@@ -27,7 +27,7 @@ namespace SistemaGestionAgricola.Models.Entities
         public virtual Usuario Usuario { get; set; } = null!;
 
         // Collection navigation properties
-        //public virtual ICollection<Terreno> Terrenos { get; set; } = new List<Terreno>();
+        public virtual ICollection<Terreno> Terrenos { get; set; } = new List<Terreno>();
 
         public Agricultor()
         {
