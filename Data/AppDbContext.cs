@@ -12,7 +12,6 @@ namespace SistemaGestionAgricola.Data
 
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Agricultor> Agricultores { get; set; }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
