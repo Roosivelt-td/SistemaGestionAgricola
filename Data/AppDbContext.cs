@@ -13,6 +13,8 @@ namespace SistemaGestionAgricola.Data
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Agricultor> Agricultores { get; set; }
         public DbSet<Terreno> Terrenos { get; set; }
+        
+        public DbSet<TipoCultivo> TipoCultivos { get; set; } 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -22,6 +24,7 @@ namespace SistemaGestionAgricola.Data
             modelBuilder.ApplyConfiguration(new UsuarioConfiguration());
             modelBuilder.ApplyConfiguration(new AgricultorConfiguration());
             modelBuilder.ApplyConfiguration(new TerrenoConfiguration());
+            modelBuilder.ApplyConfiguration(new TipoCultivoConfiguration());
         }
     }
 }

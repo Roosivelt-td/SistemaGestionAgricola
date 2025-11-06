@@ -1,0 +1,29 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace SistemaGestionAgricola.Models.Entities
+{
+    public class TipoCultivo
+    {
+        [Key]
+        public int Id { get; set; }
+
+        [Required]
+        [MaxLength(100)]
+        public string Nombre { get; set; } = string.Empty;
+
+        [Required]
+        public int TiempoSiembraCosecha { get; set; } // en días
+
+        public string? InstruccionesRiegos { get; set; }
+
+        public string? InstruccionesFumigaciones { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+
+
+        public TipoCultivo()
+        {
+            CreatedAt = DateTime.UtcNow;
+        }
+    }
+}
