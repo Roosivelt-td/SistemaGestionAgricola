@@ -139,83 +139,139 @@ namespace SistemaGestionAgricola.Controllers
         }
 
         // POST: api/DetallesPreparacionTerreno
-        [HttpPost]
-        public async Task<ActionResult<DetallePreparacionTerrenoDTO>> PostDetallePreparacionTerreno(CreateDetallePreparacionTerrenoDTO createDetalleDTO)
+[HttpPost]
+public async Task<ActionResult<DetallePreparacionTerrenoDTO>> PostDetallePreparacionTerreno(CreateDetallePreparacionTerrenoDTO createDetalleDTO)
+{
+    try
+    {
+        // Validar campos requeridos del DTO
+        if (createDetalleDTO == null)
         {
-            try
-            {
-                // Validar campos requeridos
-                if (string.IsNullOrWhiteSpace(createDetalleDTO.TipoPreparacion))
-                {
-                    return BadRequest("TipoPreparacion es un campo requerido");
-                }
-
-                // Verificar si el proceso existe y es de tipo "Preparación terreno"
-                var proceso = await _context.ProcesosAgricolas
-                    .Include(pa => pa.TipoProceso)
-                    .Include(pa => pa.Cultivo)
-                        .ThenInclude(c => c.Terreno)
-                            .ThenInclude(t => t.Agricultor)
-                                .ThenInclude(a => a.Usuario)
-                    .FirstOrDefaultAsync(pa => pa.Id == createDetalleDTO.ProcesoId);
-                
-                if (proceso == null)
-                {
-                    return BadRequest("El proceso especificado no existe");
-                }
-
-                // Validar que el proceso sea de tipo "Preparación terreno"
-                
-                /*if (proceso.TipoProceso.Nombre != "Preparación terreno")
-                {
-                    return BadRequest("Solo se pueden agregar detalles de preparación a procesos de tipo 'Preparación terreno'");
-                }*/
-                // DESPUÉS (más flexible):
-                var tiposPreparacionValidos = new[] { "Preparación terreno", "Preparacion terreno", "Preparación del terreno", "Preparacion del terreno" };
-                if (!tiposPreparacionValidos.Contains(proceso.TipoProceso.Nombre.ToLower()))
-                {
-                    return BadRequest($"Solo se pueden agregar detalles de preparación a procesos de tipo preparación de terreno. El proceso actual es: {proceso.TipoProceso.Nombre}");
-                }
-
-                var detalle = new DetallePreparacionTerreno
-                {
-                    ProcesoId = createDetalleDTO.ProcesoId,
-                    TipoPreparacion = createDetalleDTO.TipoPreparacion.Trim(),
-                    HorasMaquinaria = createDetalleDTO.HorasMaquinaria,
-                    Costo = createDetalleDTO.Costo,
-                    Observaciones = createDetalleDTO.Observaciones?.Trim()
-                };
-
-                _context.DetallesPreparacionTerreno.Add(detalle);
-                await _context.SaveChangesAsync();
-
-                var detalleDTO = new DetallePreparacionTerrenoDTO
-                {
-                    Id = detalle.Id,
-                    ProcesoId = detalle.ProcesoId,
-                    TipoPreparacion = detalle.TipoPreparacion,
-                    HorasMaquinaria = detalle.HorasMaquinaria,
-                    Costo = detalle.Costo,
-                    Observaciones = detalle.Observaciones,
-                    CreatedAt = detalle.CreatedAt,
-                    ProcesoTipo = proceso.TipoProceso.Nombre,
-                    CultivoNombre = proceso.Cultivo.TipoCultivo.Nombre,
-                    TerrenoNombre = proceso.Cultivo.Terreno.Nombre,
-                    AgricultorNombre = proceso.Cultivo.Terreno.Agricultor.Usuario.Nombre
-                };
-
-                return CreatedAtAction(nameof(GetDetallePreparacionTerreno), new { id = detalle.Id }, detalleDTO);
-            }
-            catch (DbUpdateException dbEx)
-            {
-                return StatusCode(500, $"Error al guardar en la base de datos: {dbEx.InnerException?.Message ?? dbEx.Message}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
-            }
+            return BadRequest("Los datos de entrada no pueden ser nulos");
         }
 
+        if (string.IsNullOrWhiteSpace(createDetalleDTO.TipoPreparacion))
+        {
+            return BadRequest("TipoPreparacion es un campo requerido");
+        }
+
+        // Verificar si el proceso existe
+        var proceso = await _context.ProcesosAgricolas
+            .Include(pa => pa.TipoProceso)
+            .Include(pa => pa.Cultivo)
+                .ThenInclude(c => c.Terreno)
+                    .ThenInclude(t => t.Agricultor)
+                        .ThenInclude(a => a.Usuario)
+            .Include(pa => pa.Cultivo)
+                .ThenInclude(c => c.TipoCultivo)
+            .FirstOrDefaultAsync(pa => pa.Id == createDetalleDTO.ProcesoId);
+        
+        if (proceso == null)
+        {
+            return BadRequest($"El proceso con ID {createDetalleDTO.ProcesoId} no existe");
+        }
+
+        // Validaciones de null para las relaciones
+        if (proceso.TipoProceso == null)
+        {
+            return BadRequest("El tipo de proceso no está configurado correctamente");
+        }
+
+        if (proceso.Cultivo == null)
+        {
+            return BadRequest("El cultivo no está configurado correctamente");
+        }
+
+        if (proceso.Cultivo.TipoCultivo == null)
+        {
+            return BadRequest("El tipo de cultivo no está configurado correctamente");
+        }
+
+        if (proceso.Cultivo.Terreno == null)
+        {
+            return BadRequest("El terreno no está configurado correctamente");
+        }
+
+        if (proceso.Cultivo.Terreno.Agricultor == null)
+        {
+            return BadRequest("El agricultor no está configurado correctamente");
+        }
+
+        if (proceso.Cultivo.Terreno.Agricultor.Usuario == null)
+        {
+            return BadRequest("El usuario del agricultor no está configurado correctamente");
+        }
+
+        // Validación del tipo de proceso - VERSIÓN SIMPLIFICADA
+        var nombreTipoProceso = proceso.TipoProceso.Nombre?.ToLower().Trim() ?? "";
+        
+        // Lista más amplia de tipos válidos
+        var tiposPreparacionValidos = new HashSet<string> 
+        { 
+            "preparación terreno", 
+            "preparacion terreno",
+            "preparación del terreno", 
+            "preparacion del terreno",
+            "preparar terreno",
+            "preparación de terreno", 
+            "preparacion de terreno",
+            "preparacion terreno",
+            "preparación terreno", // exactamente como está en tu base de datos
+            "preparacion" // incluso más flexible
+        };
+
+        if (!tiposPreparacionValidos.Contains(nombreTipoProceso))
+        {
+            // Para debugging, muestra exactamente qué está comparando
+            return BadRequest($"Tipo de proceso no válido. Esperado: 'Preparación terreno'. Recibido: '{proceso.TipoProceso.Nombre}' (normalizado: '{nombreTipoProceso}'). Proceso ID: {proceso.Id}, TipoProceso ID: {proceso.TipoProcesoId}");
+        }
+
+        // Crear el detalle
+        var detalle = new DetallePreparacionTerreno
+        {
+            ProcesoId = createDetalleDTO.ProcesoId,
+            TipoPreparacion = createDetalleDTO.TipoPreparacion.Trim(),
+            HorasMaquinaria = createDetalleDTO.HorasMaquinaria,
+            Costo = createDetalleDTO.Costo,
+            Observaciones = createDetalleDTO.Observaciones?.Trim()
+        };
+
+        _context.DetallesPreparacionTerreno.Add(detalle);
+        await _context.SaveChangesAsync();
+
+        // Crear el DTO de respuesta
+        var detalleDTO = new DetallePreparacionTerrenoDTO
+        {
+            Id = detalle.Id,
+            ProcesoId = detalle.ProcesoId,
+            TipoPreparacion = detalle.TipoPreparacion,
+            HorasMaquinaria = detalle.HorasMaquinaria,
+            Costo = detalle.Costo,
+            Observaciones = detalle.Observaciones,
+            CreatedAt = detalle.CreatedAt,
+            ProcesoTipo = proceso.TipoProceso.Nombre,
+            CultivoNombre = proceso.Cultivo.TipoCultivo?.Nombre ?? "N/A",
+            TerrenoNombre = proceso.Cultivo.Terreno?.Nombre ?? "N/A",
+            AgricultorNombre = proceso.Cultivo.Terreno?.Agricultor?.Usuario?.Nombre ?? "N/A"
+        };
+
+        return CreatedAtAction(nameof(GetDetallePreparacionTerreno), new { id = detalle.Id }, detalleDTO);
+    }
+    catch (DbUpdateException dbEx)
+    {
+        // Log más detallado del error
+        Console.WriteLine($"Error de base de datos: {dbEx.Message}");
+        Console.WriteLine($"Inner Exception: {dbEx.InnerException?.Message}");
+        return StatusCode(500, $"Error al guardar en la base de datos: {dbEx.InnerException?.Message ?? dbEx.Message}");
+    }
+    catch (Exception ex)
+    {
+        // Log completo del error
+        Console.WriteLine($"Error: {ex.Message}");
+        Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+        return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+    }
+}
         // PUT: api/DetallesPreparacionTerreno/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutDetallePreparacionTerreno(int id, UpdateDetallePreparacionTerrenoDTO updateDetalleDTO)
