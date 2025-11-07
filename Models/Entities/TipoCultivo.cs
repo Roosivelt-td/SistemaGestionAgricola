@@ -20,7 +20,9 @@ namespace SistemaGestionAgricola.Models.Entities
 
         public DateTime CreatedAt { get; set; }
 
-
+        // Navigation properties
+        public virtual ICollection<Cultivo> Cultivos { get; set; } = new List<Cultivo>();
+        //public virtual ICollection<NotificacionAutomatica> NotificacionesAutomaticas { get; set; } = new List<NotificacionAutomatica>();
         public TipoCultivo()
         {
             CreatedAt = DateTime.UtcNow;

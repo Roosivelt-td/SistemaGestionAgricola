@@ -35,7 +35,7 @@ namespace SistemaGestionAgricola.Models.Entities
         [ForeignKey("AgricultorId")]
         public virtual Agricultor Agricultor { get; set; } = null!;
 
-        //public virtual ICollection<Cultivo> Cultivos { get; set; } = new List<Cultivo>();
+        public virtual ICollection<Cultivo> Cultivos { get; set; } = new List<Cultivo>();
 
         public Terreno()
         {

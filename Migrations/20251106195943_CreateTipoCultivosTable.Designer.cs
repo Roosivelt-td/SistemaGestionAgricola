@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SistemaGestionAgricola.Data;
 
@@ -11,9 +12,11 @@ using SistemaGestionAgricola.Data;
 namespace SistemaGestionAgricola.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251106195943_CreateTipoCultivosTable")]
+    partial class CreateTipoCultivosTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -59,54 +62,6 @@ namespace SistemaGestionAgricola.Migrations
                         .IsUnique();
 
                     b.ToTable("Agricultores");
-                });
-
-            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Cultivo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime");
-
-                    b.Property<string>("Estado")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)")
-                        .HasDefaultValue("planificado");
-
-                    b.Property<DateTime>("FechaCosechaEstimada")
-                        .HasColumnType("date");
-
-                    b.Property<DateTime>("FechaSiembra")
-                        .HasColumnType("date");
-
-                    b.Property<int>("TerrenoId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TipoCultivoId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Estado");
-
-                    b.HasIndex("FechaCosechaEstimada");
-
-                    b.HasIndex("FechaSiembra");
-
-                    b.HasIndex("TerrenoId");
-
-                    b.HasIndex("TipoCultivoId");
-
-                    b.ToTable("Cultivos");
                 });
 
             modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Terreno", b =>
@@ -242,25 +197,6 @@ namespace SistemaGestionAgricola.Migrations
                     b.Navigation("Usuario");
                 });
 
-            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Cultivo", b =>
-                {
-                    b.HasOne("SistemaGestionAgricola.Models.Entities.Terreno", "Terreno")
-                        .WithMany("Cultivos")
-                        .HasForeignKey("TerrenoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SistemaGestionAgricola.Models.Entities.TipoCultivo", "TipoCultivo")
-                        .WithMany("Cultivos")
-                        .HasForeignKey("TipoCultivoId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Terreno");
-
-                    b.Navigation("TipoCultivo");
-                });
-
             modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Terreno", b =>
                 {
                     b.HasOne("SistemaGestionAgricola.Models.Entities.Agricultor", "Agricultor")
@@ -275,16 +211,6 @@ namespace SistemaGestionAgricola.Migrations
             modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Agricultor", b =>
                 {
                     b.Navigation("Terrenos");
-                });
-
-            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Terreno", b =>
-                {
-                    b.Navigation("Cultivos");
-                });
-
-            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.TipoCultivo", b =>
-                {
-                    b.Navigation("Cultivos");
                 });
 
             modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Usuario", b =>
