@@ -196,10 +196,10 @@ namespace SistemaGestionAgricola.Controllers
                 }
 
                 // Verificar si hay cultivos usando este tipo
-                if (await _context.Cultivos.AnyAsync(c => c.TipoCultivoId == id))
+                /*if (await _context.Cultivos.AnyAsync(c => c.TipoCultivoId == id))
                 {
                     return BadRequest("No se puede eliminar el tipo de cultivo porque está siendo usado por uno o más cultivos");
-                }
+                }*/
 
                 _context.TipoCultivos.Remove(tipoCultivo);
                 await _context.SaveChangesAsync();
