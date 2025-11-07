@@ -16,7 +16,7 @@ namespace SistemaGestionAgricola.Models.Entities
         public DateTime CreatedAt { get; set; }
 
         // Navigation properties
-        //public virtual ICollection<ProcesoAgricola> ProcesosAgricolas { get; set; } = new List<ProcesoAgricola>();
+        public virtual ICollection<ProcesoAgricola> ProcesosAgricolas { get; set; } = new List<ProcesoAgricola>();
 
         public TipoProceso()
         {

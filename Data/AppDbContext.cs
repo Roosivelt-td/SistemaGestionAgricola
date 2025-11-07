@@ -15,7 +15,8 @@ namespace SistemaGestionAgricola.Data
         public DbSet<Terreno> Terrenos { get; set; }
         public DbSet<TipoCultivo> TipoCultivos { get; set; }
         public DbSet<Cultivo> Cultivos { get; set; }
-        public DbSet<TipoProceso> TipoProcesos { get; set; } // NUEVO
+        public DbSet<TipoProceso> TipoProcesos { get; set; }
+        public DbSet<ProcesoAgricola> ProcesosAgricolas { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -27,7 +28,8 @@ namespace SistemaGestionAgricola.Data
             modelBuilder.ApplyConfiguration(new TerrenoConfiguration());
             modelBuilder.ApplyConfiguration(new TipoCultivoConfiguration());
             modelBuilder.ApplyConfiguration(new CultivoConfiguration());
-            modelBuilder.ApplyConfiguration(new TipoProcesoConfiguration()); // NUEVO
+            modelBuilder.ApplyConfiguration(new TipoProcesoConfiguration());
+            modelBuilder.ApplyConfiguration(new ProcesoAgricolaConfiguration()); // NUEVO
         }
     }
 }
