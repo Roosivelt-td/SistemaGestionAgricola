@@ -33,7 +33,7 @@ namespace SistemaGestionAgricola.Models.Entities
 
         
         public virtual ICollection<DetallePreparacionTerreno> DetallesPreparacionTerreno { get; set; } = new List<DetallePreparacionTerreno>();
-        // public virtual ICollection<InsumoUtilizado> InsumosUtilizados { get; set; } = new List<InsumoUtilizado>();
+        public virtual ICollection<InsumoUtilizado> InsumosUtilizados { get; set; } = new List<InsumoUtilizado>();
         // public virtual ICollection<ManoObra> ManosObra { get; set; } = new List<ManoObra>();
 
         public ProcesoAgricola()

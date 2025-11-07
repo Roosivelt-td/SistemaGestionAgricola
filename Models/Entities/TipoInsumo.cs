@@ -20,7 +20,7 @@ namespace SistemaGestionAgricola.Models.Entities
         public DateTime CreatedAt { get; set; }
 
         // Navigation properties
-        //public virtual ICollection<InsumoUtilizado> InsumosUtilizados { get; set; } = new List<InsumoUtilizado>();
+        public virtual ICollection<InsumoUtilizado> InsumosUtilizados { get; set; } = new List<InsumoUtilizado>();
 
         public TipoInsumo()
         {
