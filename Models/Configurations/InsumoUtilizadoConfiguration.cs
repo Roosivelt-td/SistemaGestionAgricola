@@ -44,6 +44,12 @@ namespace SistemaGestionAgricola.Models.Configurations
             // Índices para búsquedas
             builder.HasIndex(i => i.ProcesoId);
             builder.HasIndex(i => i.TipoInsumoId);
+            
+            // Relación opcional con Proveedor
+            builder.HasOne(i => i.Proveedor)
+                .WithMany(p => p.InsumosUtilizados)
+                .HasForeignKey(i => i.ProveedorId)
+                .OnDelete(DeleteBehavior.SetNull); // Si se elimina el proveedor, setear a NULL
         }
     }
 }

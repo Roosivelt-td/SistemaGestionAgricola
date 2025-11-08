@@ -232,10 +232,10 @@ namespace SistemaGestionAgricola.Controllers
                 }
 
                 // Verificar si hay insumos utilizados usando este tipo
-                /*if (await _context.InsumosUtilizados.AnyAsync(i => i.TipoInsumoId == id))
+                if (await _context.InsumosUtilizados.AnyAsync(i => i.TipoInsumoId == id))
                 {
                     return BadRequest("No se puede eliminar el tipo de insumo porque está siendo usado por uno o más insumos utilizados");
-                }*/
+                }
 
                 _context.TipoInsumos.Remove(tipoInsumo);
                 await _context.SaveChangesAsync();

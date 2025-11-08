@@ -28,6 +28,9 @@ namespace SistemaGestionAgricola.Models.Entities
         public string? Observaciones { get; set; }
 
         public DateTime CreatedAt { get; set; }
+        
+        // NUEVO: Relación opcional con proveedor
+        public int? ProveedorId { get; set; }
 
         // Navigation properties
         [ForeignKey("ProcesoId")]
@@ -36,6 +39,9 @@ namespace SistemaGestionAgricola.Models.Entities
         [ForeignKey("TipoInsumoId")]
         public virtual TipoInsumo TipoInsumo { get; set; } = null!;
 
+        // Navigation property
+        [ForeignKey("ProveedorId")]
+        public virtual Proveedor? Proveedor { get; set; } 
         public InsumoUtilizado()
         {
             CreatedAt = DateTime.UtcNow;
