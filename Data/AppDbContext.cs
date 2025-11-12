@@ -22,6 +22,7 @@ namespace SistemaGestionAgricola.Data
         public DbSet<InsumoUtilizado> InsumosUtilizados { get; set; } 
         public DbSet<ManoObra> ManosObra { get; set; } 
         public DbSet<Proveedor> Proveedores { get; set; }
+        public DbSet<Cosecha> Cosechas { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -39,6 +40,7 @@ namespace SistemaGestionAgricola.Data
             modelBuilder.ApplyConfiguration(new InsumoUtilizadoConfiguration());
             modelBuilder.ApplyConfiguration(new ManoObraConfiguration());
             modelBuilder.ApplyConfiguration(new ProveedorConfiguration()); 
+            modelBuilder.ApplyConfiguration(new CosechaConfiguration());
         }
     }
 }
