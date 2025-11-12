@@ -182,10 +182,10 @@ namespace SistemaGestionAgricola.Controllers
                 }
 
                 // Verificar si hay procesos agrícolas usando este tipo
-                /*if (await _context.ProcesosAgricolas.AnyAsync(p => p.TipoProcesoId == id))
+                if (await _context.ProcesosAgricolas.AnyAsync(p => p.TipoProcesoId == id))
                 {
                     return BadRequest("No se puede eliminar el tipo de proceso porque está siendo usado por uno o más procesos agrícolas");
-                }*/
+                }
 
                 _context.TipoProcesos.Remove(tipoProceso);
                 await _context.SaveChangesAsync();

@@ -46,12 +46,12 @@ namespace SistemaGestionAgricola.Controllers
                     .ToListAsync();
 
                 // Calcular totales para cada proceso
-                /*foreach (var proceso in procesos)
+                foreach (var proceso in procesos)
                 {
                     proceso.TotalInsumos = await CalcularTotalInsumos(proceso.Id);
                     proceso.TotalManoObra = await CalcularTotalManoObra(proceso.Id);
                     proceso.TotalProceso = proceso.CostoManoObra + proceso.TotalInsumos + proceso.TotalManoObra;
-                }*/
+                }
 
                 return Ok(procesos);
             }
@@ -96,11 +96,11 @@ namespace SistemaGestionAgricola.Controllers
                 }
 
                 // Calcular totales
-                /*
+                
                 proceso.TotalInsumos = await CalcularTotalInsumos(proceso.Id);
                 proceso.TotalManoObra = await CalcularTotalManoObra(proceso.Id);
                 proceso.TotalProceso = proceso.CostoManoObra + proceso.TotalInsumos + proceso.TotalManoObra;
-                */
+                
 
                 return proceso;
             }
@@ -140,12 +140,12 @@ namespace SistemaGestionAgricola.Controllers
                     .ToListAsync();
 
                 // Calcular totales para cada proceso
-                /*foreach (var proceso in procesos)
+                foreach (var proceso in procesos)
                 {
                     proceso.TotalInsumos = await CalcularTotalInsumos(proceso.Id);
                     proceso.TotalManoObra = await CalcularTotalManoObra(proceso.Id);
                     proceso.TotalProceso = proceso.CostoManoObra + proceso.TotalInsumos + proceso.TotalManoObra;
-                }*/
+                }
 
                 return Ok(procesos);
             }
@@ -307,12 +307,12 @@ namespace SistemaGestionAgricola.Controllers
                 }
 
                 // Verificar si hay detalles de preparación de terreno asociados
-                /*if (await _context.DetallesPreparacionTerreno.AnyAsync(d => d.ProcesoId == id))
+                if (await _context.DetallesPreparacionTerreno.AnyAsync(d => d.ProcesoId == id))
                 {
                     return BadRequest("No se puede eliminar el proceso porque tiene detalles de preparación de terreno asociados");
-                }*/
+                }
 
-                /*// Verificar si hay insumos utilizados asociados
+                // Verificar si hay insumos utilizados asociados
                 if (await _context.InsumosUtilizados.AnyAsync(i => i.ProcesoId == id))
                 {
                     return BadRequest("No se puede eliminar el proceso porque tiene insumos utilizados asociados");
@@ -322,7 +322,7 @@ namespace SistemaGestionAgricola.Controllers
                 if (await _context.ManosObra.AnyAsync(m => m.ProcesoId == id))
                 {
                     return BadRequest("No se puede eliminar el proceso porque tiene mano de obra asociada");
-                }*/
+                }
 
                 _context.ProcesosAgricolas.Remove(proceso);
                 await _context.SaveChangesAsync();
@@ -344,7 +344,6 @@ namespace SistemaGestionAgricola.Controllers
             return _context.ProcesosAgricolas.Any(e => e.Id == id);
         }
 
-        /*
         private async Task<decimal> CalcularTotalInsumos(int procesoId)
         {
             return await _context.InsumosUtilizados
@@ -357,6 +356,6 @@ namespace SistemaGestionAgricola.Controllers
             return await _context.ManosObra
                 .Where(m => m.ProcesoId == procesoId)
                 .SumAsync(m => m.CostoTotal);
-        }*/
+        }
     }
 }

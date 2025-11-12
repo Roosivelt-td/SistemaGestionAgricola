@@ -29,7 +29,7 @@ namespace SistemaGestionAgricola.Models.Entities
         [ForeignKey("CultivoId")]
         public virtual Cultivo Cultivo { get; set; } = null!;
 
-        //public virtual ICollection<Venta> Ventas { get; set; } = new List<Venta>();
+        public virtual ICollection<Venta> Ventas { get; set; } = new List<Venta>();
 
         public Cosecha()
         {
