@@ -23,6 +23,7 @@ namespace SistemaGestionAgricola.Data
         public DbSet<ManoObra> ManosObra { get; set; } 
         public DbSet<Proveedor> Proveedores { get; set; }
         public DbSet<Cosecha> Cosechas { get; set; }
+        public DbSet<Comprador> Compradores { get; set; } 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -41,6 +42,7 @@ namespace SistemaGestionAgricola.Data
             modelBuilder.ApplyConfiguration(new ManoObraConfiguration());
             modelBuilder.ApplyConfiguration(new ProveedorConfiguration()); 
             modelBuilder.ApplyConfiguration(new CosechaConfiguration());
+            modelBuilder.ApplyConfiguration(new CompradorConfiguration());
         }
     }
 }
