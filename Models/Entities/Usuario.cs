@@ -32,6 +32,8 @@ namespace SistemaGestionAgricola.Models.Entities
 
         // Navigation property para Agricultor 
         public virtual Agricultor? Agricultor { get; set; }
+        public virtual ICollection<NotificacionAutomatica> NotificacionesAutomaticas { get; set; } = new List<NotificacionAutomatica>();
+        public virtual ICollection<Notificacion> Notificaciones { get; set; } = new List<Notificacion>();
         public Usuario()
         {
             // Establecer valores por defecto en el constructor

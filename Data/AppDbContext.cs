@@ -24,7 +24,10 @@ namespace SistemaGestionAgricola.Data
         public DbSet<Proveedor> Proveedores { get; set; }
         public DbSet<Cosecha> Cosechas { get; set; }
         public DbSet<Comprador> Compradores { get; set; } 
-        public DbSet<Venta> Ventas { get; set; } 
+        public DbSet<Venta> Ventas { get; set; }
+        public DbSet<NotificacionAutomatica> NotificacionesAutomaticas { get; set; }
+        public DbSet<Notificacion> Notificaciones { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -45,6 +48,8 @@ namespace SistemaGestionAgricola.Data
             modelBuilder.ApplyConfiguration(new CosechaConfiguration());
             modelBuilder.ApplyConfiguration(new CompradorConfiguration());
             modelBuilder.ApplyConfiguration(new VentaConfiguration());
+            modelBuilder.ApplyConfiguration(new NotificacionAutomaticaConfiguration());
+            modelBuilder.ApplyConfiguration(new NotificacionConfiguration());
         }
     }
 }

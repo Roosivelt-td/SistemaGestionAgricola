@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SistemaGestionAgricola.Data;
 
@@ -11,9 +12,11 @@ using SistemaGestionAgricola.Data;
 namespace SistemaGestionAgricola.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251112135347_CreateVentasTable")]
+    partial class CreateVentasTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -311,107 +314,6 @@ namespace SistemaGestionAgricola.Migrations
                     b.HasIndex("ProcesoId");
 
                     b.ToTable("ManosObra");
-                });
-
-            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Notificacion", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValueSql("NOW()");
-
-                    b.Property<int>("CultivoId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Estado")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)")
-                        .HasDefaultValue("pendiente");
-
-                    b.Property<DateTime?>("FechaEnvio")
-                        .HasColumnType("datetime");
-
-                    b.Property<DateTime>("FechaProgramada")
-                        .HasColumnType("date");
-
-                    b.Property<string>("Mensaje")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)");
-
-                    b.Property<string>("Tipo")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CultivoId");
-
-                    b.HasIndex("Estado");
-
-                    b.HasIndex("FechaProgramada");
-
-                    b.HasIndex("Tipo");
-
-                    b.HasIndex("UsuarioId");
-
-                    b.HasIndex("Estado", "FechaProgramada");
-
-                    b.HasIndex("UsuarioId", "Estado", "FechaProgramada");
-
-                    b.ToTable("Notificaciones");
-                });
-
-            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.NotificacionAutomatica", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime");
-
-                    b.Property<int>("DiasDespuesSiembra")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Mensaje")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("TipoCultivoId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TipoEvento")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TipoCultivoId");
-
-                    b.HasIndex("TipoEvento");
-
-                    b.HasIndex("UsuarioId");
-
-                    b.ToTable("NotificacionesAutomaticas");
                 });
 
             modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.ProcesoAgricola", b =>
@@ -822,44 +724,6 @@ namespace SistemaGestionAgricola.Migrations
                     b.Navigation("ProcesoAgricola");
                 });
 
-            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Notificacion", b =>
-                {
-                    b.HasOne("SistemaGestionAgricola.Models.Entities.Cultivo", "Cultivo")
-                        .WithMany("Notificaciones")
-                        .HasForeignKey("CultivoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SistemaGestionAgricola.Models.Entities.Usuario", "Usuario")
-                        .WithMany("Notificaciones")
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Cultivo");
-
-                    b.Navigation("Usuario");
-                });
-
-            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.NotificacionAutomatica", b =>
-                {
-                    b.HasOne("SistemaGestionAgricola.Models.Entities.TipoCultivo", "TipoCultivo")
-                        .WithMany("NotificacionesAutomaticas")
-                        .HasForeignKey("TipoCultivoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SistemaGestionAgricola.Models.Entities.Usuario", "Usuario")
-                        .WithMany("NotificacionesAutomaticas")
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("TipoCultivo");
-
-                    b.Navigation("Usuario");
-                });
-
             modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.ProcesoAgricola", b =>
                 {
                     b.HasOne("SistemaGestionAgricola.Models.Entities.Cultivo", "Cultivo")
@@ -928,8 +792,6 @@ namespace SistemaGestionAgricola.Migrations
                 {
                     b.Navigation("Cosechas");
 
-                    b.Navigation("Notificaciones");
-
                     b.Navigation("ProcesosAgricolas");
                 });
 
@@ -955,8 +817,6 @@ namespace SistemaGestionAgricola.Migrations
             modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.TipoCultivo", b =>
                 {
                     b.Navigation("Cultivos");
-
-                    b.Navigation("NotificacionesAutomaticas");
                 });
 
             modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.TipoInsumo", b =>
@@ -972,10 +832,6 @@ namespace SistemaGestionAgricola.Migrations
             modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Usuario", b =>
                 {
                     b.Navigation("Agricultor");
-
-                    b.Navigation("Notificaciones");
-
-                    b.Navigation("NotificacionesAutomaticas");
                 });
 #pragma warning restore 612, 618
         }

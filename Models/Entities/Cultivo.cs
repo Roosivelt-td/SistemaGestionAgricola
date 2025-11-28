@@ -36,7 +36,7 @@ namespace SistemaGestionAgricola.Models.Entities
 
         public virtual ICollection<ProcesoAgricola> ProcesosAgricolas { get; set; } = new List<ProcesoAgricola>();
         public virtual ICollection<Cosecha> Cosechas { get; set; } = new List<Cosecha>();
-        //public virtual ICollection<Notificacion> Notificaciones { get; set; } = new List<Notificacion>();
+        public virtual ICollection<Notificacion> Notificaciones { get; set; } = new List<Notificacion>();
         
 
         public Cultivo()
