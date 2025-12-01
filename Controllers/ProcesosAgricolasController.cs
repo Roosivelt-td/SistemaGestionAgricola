@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaGestionAgricola.Data;
@@ -8,6 +10,7 @@ namespace SistemaGestionAgricola.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize] // ← PROTECCIÓN AGREGADA
     public class ProcesosAgricolasController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -23,7 +26,18 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
-                var procesos = await _context.ProcesosAgricolas
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                IQueryable<ProcesoAgricola> query = _context.ProcesosAgricolas;
+
+                // Si no es admin, solo ver sus procesos
+                if (currentUserRole != "admin")
+                {
+                    query = query.Where(pa => pa.Cultivo.Terreno.Agricultor.UsuarioId == currentUserId);
+                }
+
+                var procesos = await query
                     .Include(pa => pa.TipoProceso)
                     .Include(pa => pa.Cultivo)
                         .ThenInclude(c => c.Terreno)
@@ -67,6 +81,9 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
                 var proceso = await _context.ProcesosAgricolas
                     .Include(pa => pa.TipoProceso)
                     .Include(pa => pa.Cultivo)
@@ -95,12 +112,22 @@ namespace SistemaGestionAgricola.Controllers
                     return NotFound($"Proceso agrícola con ID {id} no encontrado");
                 }
 
+                // Verificar permisos
+                if (currentUserRole != "admin")
+                {
+                    var agricultorUsuarioId = await _context.Cultivos
+                        .Where(c => c.Id == proceso.CultivoId)
+                        .Select(c => c.Terreno.Agricultor.UsuarioId)
+                        .FirstOrDefaultAsync();
+
+                    if (agricultorUsuarioId != currentUserId)
+                        return Forbid();
+                }
+
                 // Calcular totales
-                
                 proceso.TotalInsumos = await CalcularTotalInsumos(proceso.Id);
                 proceso.TotalManoObra = await CalcularTotalManoObra(proceso.Id);
                 proceso.TotalProceso = proceso.CostoManoObra + proceso.TotalInsumos + proceso.TotalManoObra;
-                
 
                 return proceso;
             }
@@ -116,6 +143,21 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                // Verificar permisos del cultivo
+                if (currentUserRole != "admin")
+                {
+                    var cultivoUsuarioId = await _context.Cultivos
+                        .Where(c => c.Id == cultivoId)
+                        .Select(c => c.Terreno.Agricultor.UsuarioId)
+                        .FirstOrDefaultAsync();
+
+                    if (cultivoUsuarioId != currentUserId)
+                        return Forbid();
+                }
+
                 var procesos = await _context.ProcesosAgricolas
                     .Include(pa => pa.TipoProceso)
                     .Include(pa => pa.Cultivo)
@@ -161,6 +203,9 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
                 // Validar campos requeridos
                 if (createProcesoAgricolaDTO.Fecha == default)
                 {
@@ -179,6 +224,10 @@ namespace SistemaGestionAgricola.Controllers
                 {
                     return BadRequest("El cultivo especificado no existe");
                 }
+
+                // Verificar permisos del cultivo
+                if (currentUserRole != "admin" && cultivo.Terreno.Agricultor.UsuarioId != currentUserId)
+                    return Forbid();
 
                 // Verificar si el tipo de proceso existe
                 var tipoProceso = await _context.TipoProcesos
@@ -243,14 +292,22 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
                 var proceso = await _context.ProcesosAgricolas
                     .Include(pa => pa.Cultivo)
+                        .ThenInclude(c => c.Terreno)
                     .FirstOrDefaultAsync(pa => pa.Id == id);
                 
                 if (proceso == null)
                 {
                     return NotFound($"Proceso agrícola con ID {id} no encontrado");
                 }
+
+                // Verificar permisos
+                if (currentUserRole != "admin" && proceso.Cultivo.Terreno.Agricultor.UsuarioId != currentUserId)
+                    return Forbid();
 
                 // Validar fecha si se está actualizando
                 if (updateProcesoAgricolaDTO.Fecha.HasValue)
@@ -300,11 +357,22 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
-                var proceso = await _context.ProcesosAgricolas.FindAsync(id);
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                var proceso = await _context.ProcesosAgricolas
+                    .Include(pa => pa.Cultivo)
+                        .ThenInclude(c => c.Terreno)
+                    .FirstOrDefaultAsync(pa => pa.Id == id);
+                
                 if (proceso == null)
                 {
                     return NotFound($"Proceso agrícola con ID {id} no encontrado");
                 }
+
+                // Verificar permisos
+                if (currentUserRole != "admin" && proceso.Cultivo.Terreno.Agricultor.UsuarioId != currentUserId)
+                    return Forbid();
 
                 // Verificar si hay detalles de preparación de terreno asociados
                 if (await _context.DetallesPreparacionTerreno.AnyAsync(d => d.ProcesoId == id))

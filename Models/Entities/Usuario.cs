@@ -14,18 +14,27 @@ namespace SistemaGestionAgricola.Models.Entities
 
         [Required]
         [MaxLength(255)]
-        public string Password { get; set; } = string.Empty;
+        public string PasswordHash { get; set; } = string.Empty;
 
         [Required]
         [MaxLength(20)]
-        public string Rol { get; set; } = "agricultor"; // Valor por defecto
+        public string Rol { get; set; } = "pendiente";
 
         [Required]
         [MaxLength(100)]
-        public string Nombre { get; set; } = string.Empty;
-
+        public string Nombre { get; set; } = "Pendiente";
+        
+        [MaxLength(100)]
+        public string? Apellidos { get; set; }
+        
         [MaxLength(20)]
         public string? Telefono { get; set; }
+
+        // ✅ NUEVOS CAMPOS PARA VERIFICACIÓN POR EMAIL
+        public bool EmailVerificado { get; set; } = false;
+        public string? CodigoVerificacion { get; set; }
+        public DateTime? CodigoVerificacionExpiracion { get; set; }
+        public DateTime? FechaVerificacion { get; set; }
 
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
@@ -34,9 +43,9 @@ namespace SistemaGestionAgricola.Models.Entities
         public virtual Agricultor? Agricultor { get; set; }
         public virtual ICollection<NotificacionAutomatica> NotificacionesAutomaticas { get; set; } = new List<NotificacionAutomatica>();
         public virtual ICollection<Notificacion> Notificaciones { get; set; } = new List<Notificacion>();
+        
         public Usuario()
         {
-            // Establecer valores por defecto en el constructor
             CreatedAt = DateTime.UtcNow;
             UpdatedAt = DateTime.UtcNow;
         }

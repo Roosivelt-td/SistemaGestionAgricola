@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaGestionAgricola.Data;
@@ -8,6 +10,7 @@ namespace SistemaGestionAgricola.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize] // ← PROTECCIÓN AGREGADA
     public class NotificacionesAutomaticasController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -19,6 +22,7 @@ namespace SistemaGestionAgricola.Controllers
 
         // GET: api/NotificacionesAutomaticas
         [HttpGet]
+        [Authorize(Roles = "admin")] // ← Solo admin puede ver todas las configuraciones
         public async Task<ActionResult<IEnumerable<NotificacionAutomaticaDTO>>> GetNotificacionesAutomaticas()
         {
             try
@@ -55,6 +59,9 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
                 var notificacion = await _context.NotificacionesAutomaticas
                     .Include(na => na.TipoCultivo)
                     .Include(na => na.Usuario)
@@ -79,6 +86,10 @@ namespace SistemaGestionAgricola.Controllers
                     return NotFound($"Notificación automática con ID {id} no encontrada");
                 }
 
+                // Verificar permisos - solo el dueño o admin puede ver
+                if (currentUserRole != "admin" && notificacion.UsuarioId != currentUserId)
+                    return Forbid();
+
                 return notificacion;
             }
             catch (Exception ex)
@@ -93,10 +104,21 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
-                var notificaciones = await _context.NotificacionesAutomaticas
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                IQueryable<NotificacionAutomatica> query = _context.NotificacionesAutomaticas
+                    .Where(na => na.TipoCultivoId == tipoCultivoId);
+
+                // Si no es admin, solo ver sus configuraciones
+                if (currentUserRole != "admin")
+                {
+                    query = query.Where(na => na.UsuarioId == currentUserId);
+                }
+
+                var notificaciones = await query
                     .Include(na => na.TipoCultivo)
                     .Include(na => na.Usuario)
-                    .Where(na => na.TipoCultivoId == tipoCultivoId)
                     .Select(na => new NotificacionAutomaticaDTO
                     {
                         Id = na.Id,
@@ -126,6 +148,13 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                // Verificar permisos - solo puede ver sus propias configuraciones
+                if (currentUserRole != "admin" && usuarioId != currentUserId)
+                    return Forbid();
+
                 var notificaciones = await _context.NotificacionesAutomaticas
                     .Include(na => na.TipoCultivo)
                     .Include(na => na.Usuario)
@@ -159,6 +188,9 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
                 // Validar campos requeridos
                 if (string.IsNullOrWhiteSpace(createNotificacionDTO.TipoEvento))
                 {
@@ -175,6 +207,10 @@ namespace SistemaGestionAgricola.Controllers
                 {
                     return BadRequest("Tipo de evento no válido. Los valores permitidos son: riego, fumigacion, cosecha, mantenimiento");
                 }
+
+                // Verificar permisos - solo puede crear configuraciones para sí mismo
+                if (createNotificacionDTO.UsuarioId != currentUserId && currentUserRole != "admin")
+                    return Forbid();
 
                 // Verificar si el tipo de cultivo existe
                 var tipoCultivo = await _context.TipoCultivos
@@ -238,12 +274,19 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
                 var notificacion = await _context.NotificacionesAutomaticas.FindAsync(id);
 
                 if (notificacion == null)
                 {
                     return NotFound($"Notificación automática con ID {id} no encontrada");
                 }
+
+                // Verificar permisos - solo el dueño o admin puede actualizar
+                if (currentUserRole != "admin" && notificacion.UsuarioId != currentUserId)
+                    return Forbid();
 
                 // Validar tipo de evento si se está actualizando
                 if (updateNotificacionDTO.TipoEvento != null && !IsValidTipoEvento(updateNotificacionDTO.TipoEvento))
@@ -292,12 +335,19 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
                 var notificacion = await _context.NotificacionesAutomaticas.FindAsync(id);
 
                 if (notificacion == null)
                 {
                     return NotFound($"Notificación automática con ID {id} no encontrada");
                 }
+
+                // Verificar permisos - solo el dueño o admin puede eliminar
+                if (currentUserRole != "admin" && notificacion.UsuarioId != currentUserId)
+                    return Forbid();
 
                 _context.NotificacionesAutomaticas.Remove(notificacion);
                 await _context.SaveChangesAsync();
@@ -316,6 +366,7 @@ namespace SistemaGestionAgricola.Controllers
 
         // POST: api/NotificacionesAutomaticas/generar
         [HttpPost("generar")]
+        [Authorize(Roles = "admin")] // ← Solo admin puede generar notificaciones automáticas
         public async Task<ActionResult> GenerarNotificacionesAutomaticas()
         {
             try

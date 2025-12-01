@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaGestionAgricola.Data;
@@ -8,6 +10,7 @@ namespace SistemaGestionAgricola.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize] // ← PROTECCIÓN AGREGADA
     public class CompradoresController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -128,6 +131,7 @@ namespace SistemaGestionAgricola.Controllers
 
         // POST: api/Compradores
         [HttpPost]
+        [Authorize(Roles = "admin")] // ← Solo admin puede crear
         public async Task<ActionResult<CompradorDTO>> PostComprador(CreateCompradorDTO createCompradorDTO)
         {
             try
@@ -199,6 +203,7 @@ namespace SistemaGestionAgricola.Controllers
 
         // PUT: api/Compradores/5
         [HttpPut("{id}")]
+        [Authorize(Roles = "admin")] // ← Solo admin puede actualizar
         public async Task<IActionResult> PutComprador(int id, UpdateCompradorDTO updateCompradorDTO)
         {
             try
@@ -273,6 +278,7 @@ namespace SistemaGestionAgricola.Controllers
 
         // DELETE: api/Compradores/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "admin")] // ← Solo admin puede eliminar
         public async Task<IActionResult> DeleteComprador(int id)
         {
             try

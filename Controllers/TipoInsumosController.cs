@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaGestionAgricola.Data;
@@ -8,6 +10,7 @@ namespace SistemaGestionAgricola.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize] // ← Proteger por defecto, pero GET puede ser público
     public class TipoInsumosController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -19,6 +22,7 @@ namespace SistemaGestionAgricola.Controllers
 
         // GET: api/TipoInsumos
         [HttpGet]
+        [AllowAnonymous] // ← Hacer público si se desea acceso sin autenticación
         public async Task<ActionResult<IEnumerable<TipoInsumoDTO>>> GetTipoInsumos()
         {
             try
@@ -44,6 +48,7 @@ namespace SistemaGestionAgricola.Controllers
 
         // GET: api/TipoInsumos/5
         [HttpGet("{id}")]
+        [AllowAnonymous] // ← Hacer público si se desea acceso sin autenticación
         public async Task<ActionResult<TipoInsumoDTO>> GetTipoInsumo(int id)
         {
             try
@@ -75,6 +80,7 @@ namespace SistemaGestionAgricola.Controllers
 
         // GET: api/TipoInsumos/categoria/semilla
         [HttpGet("categoria/{categoria}")]
+        [AllowAnonymous] // ← Hacer público si se desea acceso sin autenticación
         public async Task<ActionResult<IEnumerable<TipoInsumoDTO>>> GetTipoInsumosByCategoria(string categoria)
         {
             try
@@ -101,6 +107,7 @@ namespace SistemaGestionAgricola.Controllers
 
         // POST: api/TipoInsumos
         [HttpPost]
+        [Authorize(Roles = "admin")] // ← Solo admin puede crear
         public async Task<ActionResult<TipoInsumoDTO>> PostTipoInsumo(CreateTipoInsumoDTO createTipoInsumoDTO)
         {
             try
@@ -161,6 +168,7 @@ namespace SistemaGestionAgricola.Controllers
 
         // PUT: api/TipoInsumos/5
         [HttpPut("{id}")]
+        [Authorize(Roles = "admin")] // ← Solo admin puede actualizar
         public async Task<IActionResult> PutTipoInsumo(int id, UpdateTipoInsumoDTO updateTipoInsumoDTO)
         {
             try
@@ -221,6 +229,7 @@ namespace SistemaGestionAgricola.Controllers
 
         // DELETE: api/TipoInsumos/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "admin")] // ← Solo admin puede eliminar
         public async Task<IActionResult> DeleteTipoInsumo(int id)
         {
             try

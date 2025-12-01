@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaGestionAgricola.Data;
@@ -8,6 +10,7 @@ namespace SistemaGestionAgricola.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize] // ← PROTECCIÓN AGREGADA
     public class CultivosController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -23,7 +26,18 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
-                var cultivos = await _context.Cultivos
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                IQueryable<Cultivo> query = _context.Cultivos;
+
+                // Si no es admin, solo ver sus cultivos
+                if (currentUserRole != "admin")
+                {
+                    query = query.Where(c => c.Terreno.Agricultor.UsuarioId == currentUserId);
+                }
+
+                var cultivos = await query
                     .Include(c => c.Terreno)
                         .ThenInclude(t => t.Agricultor)
                             .ThenInclude(a => a.Usuario)
@@ -41,7 +55,6 @@ namespace SistemaGestionAgricola.Controllers
                         TerrenoNombre = c.Terreno.Nombre,
                         TipoCultivoNombre = c.TipoCultivo.Nombre,
                         AgricultorNombre = c.Terreno.Agricultor.Usuario.Nombre
-                        // Removemos DiasRestantes y EstaAtrasado temporalmente
                     })
                     .ToListAsync();
 
@@ -66,6 +79,9 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
                 var cultivo = await _context.Cultivos
                     .Include(c => c.Terreno)
                         .ThenInclude(t => t.Agricultor)
@@ -85,7 +101,6 @@ namespace SistemaGestionAgricola.Controllers
                         TerrenoNombre = c.Terreno.Nombre,
                         TipoCultivoNombre = c.TipoCultivo.Nombre,
                         AgricultorNombre = c.Terreno.Agricultor.Usuario.Nombre
-                        // Removemos DiasRestantes y EstaAtrasado temporalmente
                     })
                     .FirstOrDefaultAsync();
 
@@ -94,7 +109,19 @@ namespace SistemaGestionAgricola.Controllers
                     return NotFound($"Cultivo con ID {id} no encontrado");
                 }
 
-                // Calcular propiedades calculadas después de obtener los datos
+                // Verificar permisos
+                if (currentUserRole != "admin")
+                {
+                    var agricultorUsuarioId = await _context.Terrenos
+                        .Where(t => t.Id == cultivo.TerrenoId)
+                        .Select(t => t.Agricultor.UsuarioId)
+                        .FirstOrDefaultAsync();
+
+                    if (agricultorUsuarioId != currentUserId)
+                        return Forbid();
+                }
+
+                // Calcular propiedades calculadas
                 cultivo.DiasRestantes = (cultivo.FechaCosechaEstimada - DateTime.Today).Days;
                 cultivo.EstaAtrasado = cultivo.Estado == "activo" && DateTime.Today > cultivo.FechaCosechaEstimada;
 
@@ -112,6 +139,21 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                // Verificar permisos del terreno
+                if (currentUserRole != "admin")
+                {
+                    var terrenoUsuarioId = await _context.Terrenos
+                        .Where(t => t.Id == terrenoId)
+                        .Select(t => t.Agricultor.UsuarioId)
+                        .FirstOrDefaultAsync();
+
+                    if (terrenoUsuarioId != currentUserId)
+                        return Forbid();
+                }
+
                 var cultivos = await _context.Cultivos
                     .Include(c => c.Terreno)
                         .ThenInclude(t => t.Agricultor)
@@ -131,11 +173,10 @@ namespace SistemaGestionAgricola.Controllers
                         TerrenoNombre = c.Terreno.Nombre,
                         TipoCultivoNombre = c.TipoCultivo.Nombre,
                         AgricultorNombre = c.Terreno.Agricultor.Usuario.Nombre
-                        // Removemos DiasRestantes y EstaAtrasado temporalmente
                     })
                     .ToListAsync();
 
-                // Calcular propiedades calculadas después de obtener los datos
+                // Calcular propiedades calculadas
                 foreach (var cultivo in cultivos)
                 {
                     cultivo.DiasRestantes = (cultivo.FechaCosechaEstimada - DateTime.Today).Days;
@@ -156,6 +197,21 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                // Verificar permisos
+                if (currentUserRole != "admin")
+                {
+                    var agricultorUsuarioId = await _context.Agricultores
+                        .Where(a => a.Id == agricultorId)
+                        .Select(a => a.UsuarioId)
+                        .FirstOrDefaultAsync();
+
+                    if (agricultorUsuarioId != currentUserId)
+                        return Forbid();
+                }
+
                 var cultivos = await _context.Cultivos
                     .Include(c => c.Terreno)
                         .ThenInclude(t => t.Agricultor)
@@ -175,11 +231,10 @@ namespace SistemaGestionAgricola.Controllers
                         TerrenoNombre = c.Terreno.Nombre,
                         TipoCultivoNombre = c.TipoCultivo.Nombre,
                         AgricultorNombre = c.Terreno.Agricultor.Usuario.Nombre
-                        // Removemos DiasRestantes y EstaAtrasado temporalmente
                     })
                     .ToListAsync();
 
-                // Calcular propiedades calculadas después de obtener los datos
+                // Calcular propiedades calculadas
                 foreach (var cultivo in cultivos)
                 {
                     cultivo.DiasRestantes = (cultivo.FechaCosechaEstimada - DateTime.Today).Days;
@@ -200,6 +255,9 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
                 // Validar campos requeridos
                 if (createCultivoDTO.FechaSiembra == default)
                 {
@@ -222,6 +280,10 @@ namespace SistemaGestionAgricola.Controllers
                 {
                     return BadRequest("El terreno especificado no existe");
                 }
+
+                // Verificar permisos del terreno
+                if (currentUserRole != "admin" && terreno.Agricultor.UsuarioId != currentUserId)
+                    return Forbid();
 
                 // Verificar si el tipo de cultivo existe
                 var tipoCultivo = await _context.TipoCultivos
@@ -276,8 +338,101 @@ namespace SistemaGestionAgricola.Controllers
             }
         }
 
-        // Los métodos PUT, PATCH y DELETE permanecen igual...
-        // [HttpPut], [HttpPatch], [HttpDelete] - sin cambios
+        // PUT: api/Cultivos/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutCultivo(int id, UpdateCultivoDTO updateCultivoDTO)
+        {
+            try
+            {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                var cultivo = await _context.Cultivos
+                    .Include(c => c.Terreno)
+                    .FirstOrDefaultAsync(c => c.Id == id);
+                
+                if (cultivo == null)
+                {
+                    return NotFound($"Cultivo con ID {id} no encontrado");
+                }
+
+                // Verificar permisos
+                if (currentUserRole != "admin" && cultivo.Terreno.Agricultor.UsuarioId != currentUserId)
+                    return Forbid();
+
+                // Validar estado si se está actualizando
+                if (updateCultivoDTO.Estado != null && !IsValidEstado(updateCultivoDTO.Estado))
+                {
+                    return BadRequest("Estado no válido. Los valores permitidos son: planificado, activo, completado, cancelado");
+                }
+
+                // Actualizar solo los campos que se proporcionaron
+                if (updateCultivoDTO.Estado != null)
+                    cultivo.Estado = updateCultivoDTO.Estado.Trim();
+
+                cultivo.UpdatedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+
+                return NoContent();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!CultivoExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            catch (DbUpdateException dbEx)
+            {
+                return StatusCode(500, $"Error al actualizar en la base de datos: {dbEx.InnerException?.Message ?? dbEx.Message}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
+
+        // DELETE: api/Cultivos/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteCultivo(int id)
+        {
+            try
+            {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                var cultivo = await _context.Cultivos
+                    .Include(c => c.Terreno)
+                    .FirstOrDefaultAsync(c => c.Id == id);
+                
+                if (cultivo == null)
+                {
+                    return NotFound($"Cultivo con ID {id} no encontrado");
+                }
+
+                // Verificar permisos
+                if (currentUserRole != "admin" && cultivo.Terreno.Agricultor.UsuarioId != currentUserId)
+                    return Forbid();
+
+                _context.Cultivos.Remove(cultivo);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
+            }
+            catch (DbUpdateException dbEx)
+            {
+                return StatusCode(500, $"Error al eliminar en la base de datos: {dbEx.InnerException?.Message ?? dbEx.Message}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
 
         private bool CultivoExists(int id)
         {

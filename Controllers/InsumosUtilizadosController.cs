@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaGestionAgricola.Data;
@@ -8,6 +10,7 @@ namespace SistemaGestionAgricola.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize] // ← PROTECCIÓN AGREGADA
     public class InsumosUtilizadosController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -23,7 +26,18 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
-                var insumos = await _context.InsumosUtilizados
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                IQueryable<InsumoUtilizado> query = _context.InsumosUtilizados;
+
+                // Si no es admin, solo ver sus insumos
+                if (currentUserRole != "admin")
+                {
+                    query = query.Where(i => i.ProcesoAgricola.Cultivo.Terreno.Agricultor.UsuarioId == currentUserId);
+                }
+
+                var insumos = await query
                     .Include(i => i.TipoInsumo)
                     .Include(i => i.ProcesoAgricola)
                         .ThenInclude(pa => pa.TipoProceso)
@@ -66,6 +80,9 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
                 var insumo = await _context.InsumosUtilizados
                     .Include(i => i.TipoInsumo)
                     .Include(i => i.ProcesoAgricola)
@@ -101,6 +118,18 @@ namespace SistemaGestionAgricola.Controllers
                     return NotFound($"Insumo utilizado con ID {id} no encontrado");
                 }
 
+                // Verificar permisos
+                if (currentUserRole != "admin")
+                {
+                    var agricultorUsuarioId = await _context.ProcesosAgricolas
+                        .Where(pa => pa.Id == insumo.ProcesoId)
+                        .Select(pa => pa.Cultivo.Terreno.Agricultor.UsuarioId)
+                        .FirstOrDefaultAsync();
+
+                    if (agricultorUsuarioId != currentUserId)
+                        return Forbid();
+                }
+
                 return insumo;
             }
             catch (Exception ex)
@@ -115,6 +144,21 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                // Verificar permisos del proceso
+                if (currentUserRole != "admin")
+                {
+                    var procesoUsuarioId = await _context.ProcesosAgricolas
+                        .Where(pa => pa.Id == procesoId)
+                        .Select(pa => pa.Cultivo.Terreno.Agricultor.UsuarioId)
+                        .FirstOrDefaultAsync();
+
+                    if (procesoUsuarioId != currentUserId)
+                        return Forbid();
+                }
+
                 var insumos = await _context.InsumosUtilizados
                     .Include(i => i.TipoInsumo)
                     .Include(i => i.ProcesoAgricola)
@@ -159,6 +203,21 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                // Verificar permisos del cultivo
+                if (currentUserRole != "admin")
+                {
+                    var cultivoUsuarioId = await _context.Cultivos
+                        .Where(c => c.Id == cultivoId)
+                        .Select(c => c.Terreno.Agricultor.UsuarioId)
+                        .FirstOrDefaultAsync();
+
+                    if (cultivoUsuarioId != currentUserId)
+                        return Forbid();
+                }
+
                 var insumos = await _context.InsumosUtilizados
                     .Include(i => i.TipoInsumo)
                     .Include(i => i.ProcesoAgricola)
@@ -203,6 +262,9 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
                 // Validar campos requeridos
                 if (createInsumoDTO.Cantidad <= 0)
                 {
@@ -224,6 +286,10 @@ namespace SistemaGestionAgricola.Controllers
                 {
                     return BadRequest("El proceso especificado no existe");
                 }
+
+                // Verificar permisos del proceso
+                if (currentUserRole != "admin" && proceso.Cultivo.Terreno.Agricultor.UsuarioId != currentUserId)
+                    return Forbid();
 
                 // Verificar si el tipo de insumo existe
                 var tipoInsumo = await _context.TipoInsumos
@@ -284,11 +350,23 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
-                var insumo = await _context.InsumosUtilizados.FindAsync(id);
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                var insumo = await _context.InsumosUtilizados
+                    .Include(i => i.ProcesoAgricola)
+                        .ThenInclude(pa => pa.Cultivo)
+                            .ThenInclude(c => c.Terreno)
+                    .FirstOrDefaultAsync(i => i.Id == id);
+                
                 if (insumo == null)
                 {
                     return NotFound($"Insumo utilizado con ID {id} no encontrado");
                 }
+
+                // Verificar permisos
+                if (currentUserRole != "admin" && insumo.ProcesoAgricola.Cultivo.Terreno.Agricultor.UsuarioId != currentUserId)
+                    return Forbid();
 
                 // Actualizar solo los campos que se proporcionaron
                 if (updateInsumoDTO.Cantidad.HasValue)
@@ -334,11 +412,23 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
-                var insumo = await _context.InsumosUtilizados.FindAsync(id);
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                var insumo = await _context.InsumosUtilizados
+                    .Include(i => i.ProcesoAgricola)
+                        .ThenInclude(pa => pa.Cultivo)
+                            .ThenInclude(c => c.Terreno)
+                    .FirstOrDefaultAsync(i => i.Id == id);
+                
                 if (insumo == null)
                 {
                     return NotFound($"Insumo utilizado con ID {id} no encontrado");
                 }
+
+                // Verificar permisos
+                if (currentUserRole != "admin" && insumo.ProcesoAgricola.Cultivo.Terreno.Agricultor.UsuarioId != currentUserId)
+                    return Forbid();
 
                 _context.InsumosUtilizados.Remove(insumo);
                 await _context.SaveChangesAsync();

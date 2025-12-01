@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaGestionAgricola.Data;
@@ -8,6 +10,7 @@ namespace SistemaGestionAgricola.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize] // ← Proteger todo el controller
     public class AgricultoresController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -19,6 +22,7 @@ namespace SistemaGestionAgricola.Controllers
 
         // GET: api/Agricultores
         [HttpGet]
+        [Authorize(Roles = "admin")] // ← Solo admin puede ver todos los agricultores
         public async Task<ActionResult<IEnumerable<AgricultorDTO>>> GetAgricultores()
         {
             try
@@ -54,6 +58,11 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                // Solo permitir ver el propio perfil de agricultor o si es admin
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                // Buscar el agricultor
                 var agricultor = await _context.Agricultores
                     .Include(a => a.Usuario)
                     .Where(a => a.Id == id)
@@ -77,6 +86,10 @@ namespace SistemaGestionAgricola.Controllers
                     return NotFound($"Agricultor con ID {id} no encontrado");
                 }
 
+                // Verificar permisos: solo el propio usuario o admin
+                if (agricultor.UsuarioId != currentUserId && currentUserRole != "admin")
+                    return Forbid();
+
                 return agricultor;
             }
             catch (Exception ex)
@@ -91,6 +104,13 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                // Solo permitir ver el propio perfil o si es admin
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                if (usuarioId != currentUserId && currentUserRole != "admin")
+                    return Forbid();
+
                 var agricultor = await _context.Agricultores
                     .Include(a => a.Usuario)
                     .Where(a => a.UsuarioId == usuarioId)
@@ -122,12 +142,56 @@ namespace SistemaGestionAgricola.Controllers
             }
         }
 
+        // GET: api/Agricultores/profile
+        [HttpGet("profile")]
+        public async Task<ActionResult<AgricultorDTO>> GetProfile()
+        {
+            try
+            {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                
+                var agricultor = await _context.Agricultores
+                    .Include(a => a.Usuario)
+                    .Where(a => a.UsuarioId == currentUserId)
+                    .Select(a => new AgricultorDTO
+                    {
+                        Id = a.Id,
+                        UsuarioId = a.UsuarioId,
+                        Dni = a.Dni,
+                        Direccion = a.Direccion,
+                        Experiencia = a.Experiencia,
+                        CreatedAt = a.CreatedAt,
+                        UpdatedAt = a.UpdatedAt,
+                        UsuarioNombre = a.Usuario.Nombre,
+                        UsuarioEmail = a.Usuario.Email,
+                        UsuarioTelefono = a.Usuario.Telefono
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (agricultor == null)
+                    return NotFound("No se encontró perfil de agricultor para el usuario actual");
+
+                return agricultor;
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
+
         // POST: api/Agricultores
         [HttpPost]
         public async Task<ActionResult<AgricultorDTO>> PostAgricultor(CreateAgricultorDTO createAgricultorDTO)
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                // Solo permitir crear perfil para uno mismo, a menos que sea admin
+                if (createAgricultorDTO.UsuarioId != currentUserId && currentUserRole != "admin")
+                    return Forbid();
+
                 // Validar campos requeridos
                 if (string.IsNullOrWhiteSpace(createAgricultorDTO.Dni))
                 {
@@ -201,11 +265,18 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
                 var agricultor = await _context.Agricultores.FindAsync(id);
                 if (agricultor == null)
                 {
                     return NotFound($"Agricultor con ID {id} no encontrado");
                 }
+
+                // Solo permitir actualizar el propio perfil o si es admin
+                if (agricultor.UsuarioId != currentUserId && currentUserRole != "admin")
+                    return Forbid();
 
                 // Verificar si el DNI ya existe (si se está actualizando)
                 if (updateAgricultorDTO.Dni != null && updateAgricultorDTO.Dni != agricultor.Dni)
@@ -253,6 +324,7 @@ namespace SistemaGestionAgricola.Controllers
 
         // DELETE: api/Agricultores/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "admin")] // ← Solo admin puede eliminar agricultores
         public async Task<IActionResult> DeleteAgricultor(int id)
         {
             try

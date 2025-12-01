@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaGestionAgricola.Data;
@@ -8,6 +10,7 @@ namespace SistemaGestionAgricola.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize] // ← Proteger todo el controller
     public class TerrenosController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -19,6 +22,7 @@ namespace SistemaGestionAgricola.Controllers
 
         // GET: api/Terrenos
         [HttpGet]
+        [Authorize(Roles = "admin")] // ← Solo admin puede ver todos los terrenos
         public async Task<ActionResult<IEnumerable<TerrenoDTO>>> GetTerrenos()
         {
             try
@@ -57,6 +61,10 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                // Solo permitir ver terrenos propios o si es admin
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
                 var terreno = await _context.Terrenos
                     .Include(t => t.Agricultor)
                         .ThenInclude(a => a.Usuario)
@@ -83,6 +91,15 @@ namespace SistemaGestionAgricola.Controllers
                     return NotFound($"Terreno con ID {id} no encontrado");
                 }
 
+                // Verificar permisos: solo el agricultor dueño o admin
+                var agricultorUsuarioId = await _context.Agricultores
+                    .Where(a => a.Id == terreno.AgricultorId)
+                    .Select(a => a.UsuarioId)
+                    .FirstOrDefaultAsync();
+
+                if (agricultorUsuarioId != currentUserId && currentUserRole != "admin")
+                    return Forbid();
+
                 return terreno;
             }
             catch (Exception ex)
@@ -97,6 +114,65 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                // Solo permitir ver terrenos propios o si es admin
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                // Verificar si el agricultor pertenece al usuario actual
+                var agricultorUsuarioId = await _context.Agricultores
+                    .Where(a => a.Id == agricultorId)
+                    .Select(a => a.UsuarioId)
+                    .FirstOrDefaultAsync();
+
+                if (agricultorUsuarioId != currentUserId && currentUserRole != "admin")
+                    return Forbid();
+
+                var terrenos = await _context.Terrenos
+                    .Include(t => t.Agricultor)
+                        .ThenInclude(a => a.Usuario)
+                    .Where(t => t.AgricultorId == agricultorId)
+                    .Select(t => new TerrenoDTO
+                    {
+                        Id = t.Id,
+                        AgricultorId = t.AgricultorId,
+                        Nombre = t.Nombre,
+                        Ubicacion = t.Ubicacion,
+                        AreaHectareas = t.AreaHectareas,
+                        TipoTenencia = t.TipoTenencia,
+                        CostoAlquiler = t.CostoAlquiler,
+                        CreatedAt = t.CreatedAt,
+                        UpdatedAt = t.UpdatedAt,
+                        AgricultorNombre = t.Agricultor.Usuario.Nombre,
+                        AgricultorDni = t.Agricultor.Dni,
+                        UsuarioNombre = t.Agricultor.Usuario.Nombre
+                    })
+                    .ToListAsync();
+
+                return Ok(terrenos);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
+
+        // GET: api/Terrenos/my-terrenos
+        [HttpGet("my-terrenos")]
+        public async Task<ActionResult<IEnumerable<TerrenoDTO>>> GetMyTerrenos()
+        {
+            try
+            {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                
+                // Obtener el ID del agricultor del usuario actual
+                var agricultorId = await _context.Agricultores
+                    .Where(a => a.UsuarioId == currentUserId)
+                    .Select(a => a.Id)
+                    .FirstOrDefaultAsync();
+
+                if (agricultorId == 0)
+                    return Ok(new List<TerrenoDTO>()); // No es agricultor o no tiene terrenos
+
                 var terrenos = await _context.Terrenos
                     .Include(t => t.Agricultor)
                         .ThenInclude(a => a.Usuario)
@@ -132,6 +208,18 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                // Verificar si el agricultor pertenece al usuario actual (a menos que sea admin)
+                var agricultorUsuarioId = await _context.Agricultores
+                    .Where(a => a.Id == createTerrenoDTO.AgricultorId)
+                    .Select(a => a.UsuarioId)
+                    .FirstOrDefaultAsync();
+
+                if (agricultorUsuarioId != currentUserId && currentUserRole != "admin")
+                    return Forbid();
+
                 // Validar campos requeridos
                 if (string.IsNullOrWhiteSpace(createTerrenoDTO.Nombre))
                 {
@@ -217,11 +305,23 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
                 var terreno = await _context.Terrenos.FindAsync(id);
                 if (terreno == null)
                 {
                     return NotFound($"Terreno con ID {id} no encontrado");
                 }
+
+                // Verificar permisos: solo el agricultor dueño o admin
+                var agricultorUsuarioId = await _context.Agricultores
+                    .Where(a => a.Id == terreno.AgricultorId)
+                    .Select(a => a.UsuarioId)
+                    .FirstOrDefaultAsync();
+
+                if (agricultorUsuarioId != currentUserId && currentUserRole != "admin")
+                    return Forbid();
 
                 // Validar tipo de tenencia si se está actualizando
                 if (updateTerrenoDTO.TipoTenencia != null && !IsValidTipoTenencia(updateTerrenoDTO.TipoTenencia))
@@ -289,11 +389,21 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
-                var terreno = await _context.Terrenos.FindAsync(id);
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                var terreno = await _context.Terrenos
+                    .Include(t => t.Agricultor)
+                    .FirstOrDefaultAsync(t => t.Id == id);
+
                 if (terreno == null)
                 {
                     return NotFound($"Terreno con ID {id} no encontrado");
                 }
+
+                // Verificar permisos: solo el agricultor dueño o admin
+                if (terreno.Agricultor.UsuarioId != currentUserId && currentUserRole != "admin")
+                    return Forbid();
 
                 _context.Terrenos.Remove(terreno);
                 await _context.SaveChangesAsync();

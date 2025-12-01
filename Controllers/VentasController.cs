@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaGestionAgricola.Data;
@@ -8,6 +10,7 @@ namespace SistemaGestionAgricola.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize] // ← PROTECCIÓN AGREGADA
     public class VentasController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -23,7 +26,18 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
-                var ventas = await _context.Ventas
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                IQueryable<Venta> query = _context.Ventas;
+
+                // Si no es admin, solo ver sus ventas
+                if (currentUserRole != "admin")
+                {
+                    query = query.Where(v => v.Cosecha.Cultivo.Terreno.Agricultor.UsuarioId == currentUserId);
+                }
+
+                var ventas = await query
                     .Include(v => v.Cosecha)
                         .ThenInclude(c => c.Cultivo)
                             .ThenInclude(c => c.TipoCultivo)
@@ -68,6 +82,9 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
                 var venta = await _context.Ventas
                     .Include(v => v.Cosecha)
                         .ThenInclude(c => c.Cultivo)
@@ -105,6 +122,18 @@ namespace SistemaGestionAgricola.Controllers
                     return NotFound($"Venta con ID {id} no encontrada");
                 }
 
+                // Verificar permisos
+                if (currentUserRole != "admin")
+                {
+                    var agricultorUsuarioId = await _context.Cosechas
+                        .Where(c => c.Id == venta.CosechaId)
+                        .Select(c => c.Cultivo.Terreno.Agricultor.UsuarioId)
+                        .FirstOrDefaultAsync();
+
+                    if (agricultorUsuarioId != currentUserId)
+                        return Forbid();
+                }
+
                 return venta;
             }
             catch (Exception ex)
@@ -119,6 +148,21 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                // Verificar permisos de la cosecha
+                if (currentUserRole != "admin")
+                {
+                    var cosechaUsuarioId = await _context.Cosechas
+                        .Where(c => c.Id == cosechaId)
+                        .Select(c => c.Cultivo.Terreno.Agricultor.UsuarioId)
+                        .FirstOrDefaultAsync();
+
+                    if (cosechaUsuarioId != currentUserId)
+                        return Forbid();
+                }
+
                 var ventas = await _context.Ventas
                     .Include(v => v.Cosecha)
                         .ThenInclude(c => c.Cultivo)
@@ -165,7 +209,18 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
-                var ventas = await _context.Ventas
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                IQueryable<Venta> query = _context.Ventas.Where(v => v.CompradorId == compradorId);
+
+                // Si no es admin, solo ver sus ventas
+                if (currentUserRole != "admin")
+                {
+                    query = query.Where(v => v.Cosecha.Cultivo.Terreno.Agricultor.UsuarioId == currentUserId);
+                }
+
+                var ventas = await query
                     .Include(v => v.Cosecha)
                         .ThenInclude(c => c.Cultivo)
                             .ThenInclude(c => c.TipoCultivo)
@@ -175,7 +230,6 @@ namespace SistemaGestionAgricola.Controllers
                                 .ThenInclude(t => t.Agricultor)
                                     .ThenInclude(a => a.Usuario)
                     .Include(v => v.Comprador)
-                    .Where(v => v.CompradorId == compradorId)
                     .Select(v => new VentaDTO
                     {
                         Id = v.Id,
@@ -211,6 +265,9 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
                 // Validar campos requeridos
                 if (createVentaDTO.Fecha == default)
                 {
@@ -242,6 +299,10 @@ namespace SistemaGestionAgricola.Controllers
                 {
                     return BadRequest("La cosecha especificada no existe");
                 }
+
+                // Verificar permisos de la cosecha
+                if (currentUserRole != "admin" && cosecha.Cultivo.Terreno.Agricultor.UsuarioId != currentUserId)
+                    return Forbid();
 
                 // Verificar si el comprador existe
                 var comprador = await _context.Compradores
@@ -320,7 +381,13 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
                 var venta = await _context.Ventas
+                    .Include(v => v.Cosecha)
+                        .ThenInclude(c => c.Cultivo)
+                            .ThenInclude(c => c.Terreno)
                     .Include(v => v.Cosecha)
                         .ThenInclude(c => c.Ventas)
                     .FirstOrDefaultAsync(v => v.Id == id);
@@ -329,6 +396,10 @@ namespace SistemaGestionAgricola.Controllers
                 {
                     return NotFound($"Venta con ID {id} no encontrada");
                 }
+
+                // Verificar permisos
+                if (currentUserRole != "admin" && venta.Cosecha.Cultivo.Terreno.Agricultor.UsuarioId != currentUserId)
+                    return Forbid();
 
                 // Validar cantidad si se está actualizando
                 if (updateVentaDTO.Cantidad.HasValue)
@@ -391,11 +462,23 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
-                var venta = await _context.Ventas.FindAsync(id);
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                var venta = await _context.Ventas
+                    .Include(v => v.Cosecha)
+                        .ThenInclude(c => c.Cultivo)
+                            .ThenInclude(c => c.Terreno)
+                    .FirstOrDefaultAsync(v => v.Id == id);
+                
                 if (venta == null)
                 {
                     return NotFound($"Venta con ID {id} no encontrada");
                 }
+
+                // Verificar permisos
+                if (currentUserRole != "admin" && venta.Cosecha.Cultivo.Terreno.Agricultor.UsuarioId != currentUserId)
+                    return Forbid();
 
                 _context.Ventas.Remove(venta);
                 await _context.SaveChangesAsync();

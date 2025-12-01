@@ -147,6 +147,7 @@
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/SistemaGestionAgricola.runtimeconfig.json
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/SistemaGestionAgricola.dll
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/SistemaGestionAgricola.pdb
+/home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/BCrypt.Net-Next.dll
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/Humanizer.dll
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/Microsoft.AspNetCore.OpenApi.dll
@@ -280,3 +281,6 @@
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/obj/Debug/net9.0/SistemaGestionAgricola.pdb
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/obj/Debug/net9.0/SistemaGestionAgricola.genruntimeconfig.cache
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/obj/Debug/net9.0/ref/SistemaGestionAgricola.dll
+/home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/BouncyCastle.Cryptography.dll
+/home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/MailKit.dll
+/home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/MimeKit.dll

@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaGestionAgricola.Data;
@@ -9,6 +11,7 @@ namespace SistemaGestionAgricola.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize] // ← PROTECCIÓN AGREGADA
     public class NotificacionesController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -32,7 +35,18 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
-                var query = _context.Notificaciones
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                IQueryable<Notificacion> query = _context.Notificaciones;
+
+                // Si no es admin, solo ver sus notificaciones
+                if (currentUserRole != "admin")
+                {
+                    query = query.Where(n => n.UsuarioId == currentUserId);
+                }
+
+                query = query
                     .Include(n => n.Usuario)
                     .Include(n => n.Cultivo)
                         .ThenInclude(c => c.TipoCultivo)
@@ -42,7 +56,7 @@ namespace SistemaGestionAgricola.Controllers
                                 .ThenInclude(a => a.Usuario)
                     .AsQueryable();
 
-                // Filtros (NUEVO)
+                // Filtros
                 if (!string.IsNullOrEmpty(tipo))
                     query = query.Where(n => n.Tipo == tipo.ToLower());
 
@@ -55,7 +69,7 @@ namespace SistemaGestionAgricola.Controllers
                 if (fechaHasta.HasValue)
                     query = query.Where(n => n.FechaProgramada <= fechaHasta.Value.Date);
 
-                // Paginación (NUEVO)
+                // Paginación
                 var totalRecords = await query.CountAsync();
                 var notificaciones = await query
                     .OrderByDescending(n => n.CreatedAt)
@@ -80,7 +94,7 @@ namespace SistemaGestionAgricola.Controllers
                     })
                     .ToListAsync();
 
-                // Respuesta con metadatos de paginación (NUEVO)
+                // Respuesta con metadatos de paginación
                 var response = new
                 {
                     TotalRecords = totalRecords,
@@ -105,6 +119,9 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
                 var notificacion = await _context.Notificaciones
                     .Include(n => n.Usuario)
                     .Include(n => n.Cultivo)
@@ -138,6 +155,10 @@ namespace SistemaGestionAgricola.Controllers
                     return NotFound($"Notificación con ID {id} no encontrada");
                 }
 
+                // Verificar permisos
+                if (currentUserRole != "admin" && notificacion.UsuarioId != currentUserId)
+                    return Forbid();
+
                 return notificacion;
             }
             catch (Exception ex)
@@ -155,6 +176,13 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                // Verificar permisos
+                if (currentUserRole != "admin" && usuarioId != currentUserId)
+                    return Forbid();
+
                 var query = _context.Notificaciones
                     .Include(n => n.Usuario)
                     .Include(n => n.Cultivo)
@@ -206,7 +234,19 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
-                var notificaciones = await _context.Notificaciones
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                IQueryable<Notificacion> query = _context.Notificaciones
+                    .Where(n => n.Estado == "pendiente" && n.FechaProgramada <= DateTime.Today);
+
+                // Si no es admin, solo ver sus notificaciones pendientes
+                if (currentUserRole != "admin")
+                {
+                    query = query.Where(n => n.UsuarioId == currentUserId);
+                }
+
+                var notificaciones = await query
                     .Include(n => n.Usuario)
                     .Include(n => n.Cultivo)
                         .ThenInclude(c => c.TipoCultivo)
@@ -214,7 +254,6 @@ namespace SistemaGestionAgricola.Controllers
                         .ThenInclude(c => c.Terreno)
                             .ThenInclude(t => t.Agricultor)
                                 .ThenInclude(a => a.Usuario)
-                    .Where(n => n.Estado == "pendiente" && n.FechaProgramada <= DateTime.Today)
                     .OrderBy(n => n.FechaProgramada)
                     .Select(n => new NotificacionDTO
                     {
@@ -250,11 +289,18 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
-                // Validación del modelo (mejorada)
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                // Validación del modelo
                 if (!ModelState.IsValid)
                 {
                     return BadRequest(ModelState);
                 }
+
+                // Verificar permisos - solo admin puede crear notificaciones para otros usuarios
+                if (createNotificacionDTO.UsuarioId != currentUserId && currentUserRole != "admin")
+                    return Forbid();
 
                 // Verificar si el usuario existe
                 var usuario = await _context.Usuarios
@@ -331,11 +377,18 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
                 var notificacion = await _context.Notificaciones.FindAsync(id);
                 if (notificacion == null)
                 {
                     return NotFound($"Notificación con ID {id} no encontrada");
                 }
+
+                // Verificar permisos - solo el dueño de la notificación o admin puede actualizarla
+                if (currentUserRole != "admin" && notificacion.UsuarioId != currentUserId)
+                    return Forbid();
 
                 if (!string.IsNullOrEmpty(updateDto.Estado))
                 {
@@ -372,11 +425,18 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
                 var notificacion = await _context.Notificaciones.FindAsync(id);
                 if (notificacion == null)
                 {
                     return NotFound($"Notificación con ID {id} no encontrada");
                 }
+
+                // Verificar permisos - solo el dueño de la notificación o admin puede eliminarla
+                if (currentUserRole != "admin" && notificacion.UsuarioId != currentUserId)
+                    return Forbid();
 
                 _context.Notificaciones.Remove(notificacion);
                 await _context.SaveChangesAsync();
@@ -402,7 +462,7 @@ namespace SistemaGestionAgricola.Controllers
             return _context.Notificaciones.Any(e => e.Id == id);
         }
 
-        // Métodos de validación (mejorados)
+        // Métodos de validación
         private bool IsValidTipo(string tipo)
         {
             var tiposValidos = new[] { "riego", "fumigacion", "cosecha", "alerta", "recordatorio" };

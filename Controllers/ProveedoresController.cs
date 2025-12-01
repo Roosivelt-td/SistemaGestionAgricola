@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaGestionAgricola.Data;
@@ -8,6 +10,7 @@ namespace SistemaGestionAgricola.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize] // ← PROTECCIÓN AGREGADA
     public class ProveedoresController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -116,6 +119,7 @@ namespace SistemaGestionAgricola.Controllers
 
         // POST: api/Proveedores
         [HttpPost]
+        [Authorize(Roles = "admin")] // ← Solo admin puede crear
         public async Task<ActionResult<ProveedorDTO>> PostProveedor(CreateProveedorDTO createProveedorDTO)
         {
             try
@@ -188,6 +192,7 @@ namespace SistemaGestionAgricola.Controllers
 
         // PUT: api/Proveedores/5
         [HttpPut("{id}")]
+        [Authorize(Roles = "admin")] // ← Solo admin puede actualizar
         public async Task<IActionResult> PutProveedor(int id, UpdateProveedorDTO updateProveedorDTO)
         {
             try
@@ -262,6 +267,7 @@ namespace SistemaGestionAgricola.Controllers
 
         // DELETE: api/Proveedores/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "admin")] // ← Solo admin puede eliminar
         public async Task<IActionResult> DeleteProveedor(int id)
         {
             try
