@@ -22,6 +22,628 @@ namespace SistemaGestionAgricola.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Agricultor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("Direccion")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Dni")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("Experiencia")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Dni")
+                        .IsUnique();
+
+                    b.HasIndex("UsuarioId")
+                        .IsUnique();
+
+                    b.ToTable("Agricultores");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Comprador", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Contacto")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("Direccion")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("Ruc")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("Telefono")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("TipoComprador")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Nombre");
+
+                    b.HasIndex("Ruc")
+                        .IsUnique()
+                        .HasFilter("[Ruc] IS NOT NULL");
+
+                    b.HasIndex("TipoComprador");
+
+                    b.ToTable("Compradores");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Cosecha", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("CantidadKilos")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<decimal>("CostoCosecha")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<int>("CultivoId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Observaciones")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CultivoId");
+
+                    b.HasIndex("Fecha");
+
+                    b.ToTable("Cosechas");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Cultivo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasDefaultValue("planificado");
+
+                    b.Property<DateTime>("FechaCosechaEstimada")
+                        .HasColumnType("date");
+
+                    b.Property<DateTime>("FechaSiembra")
+                        .HasColumnType("date");
+
+                    b.Property<int>("TerrenoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TipoCultivoId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Estado");
+
+                    b.HasIndex("FechaCosechaEstimada");
+
+                    b.HasIndex("FechaSiembra");
+
+                    b.HasIndex("TerrenoId");
+
+                    b.HasIndex("TipoCultivoId");
+
+                    b.ToTable("Cultivos");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.DetallePreparacionTerreno", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Costo")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<decimal>("HorasMaquinaria")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<string>("Observaciones")
+                        .HasColumnType("text");
+
+                    b.Property<int>("ProcesoId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TipoPreparacion")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProcesoId");
+
+                    b.ToTable("DetallesPreparacionTerreno");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.InsumoUtilizado", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Cantidad")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<decimal>("CostoFlete")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<decimal>("CostoUnitario")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("Observaciones")
+                        .HasColumnType("text");
+
+                    b.Property<int>("ProcesoId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ProveedorId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TipoInsumoId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProcesoId");
+
+                    b.HasIndex("ProveedorId");
+
+                    b.HasIndex("TipoInsumoId");
+
+                    b.ToTable("InsumosUtilizados");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.ManoObra", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("CostoPorDia")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<decimal>("CostoTotal")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<int>("DiasTrabajo")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NumeroPeones")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Observaciones")
+                        .HasColumnType("text");
+
+                    b.Property<int>("ProcesoId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProcesoId");
+
+                    b.ToTable("ManosObra");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Notificacion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<int>("CultivoId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasDefaultValue("pendiente");
+
+                    b.Property<DateTime?>("FechaEnvio")
+                        .HasColumnType("datetime");
+
+                    b.Property<DateTime>("FechaProgramada")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Mensaje")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CultivoId");
+
+                    b.HasIndex("Estado");
+
+                    b.HasIndex("FechaProgramada");
+
+                    b.HasIndex("Tipo");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.HasIndex("Estado", "FechaProgramada");
+
+                    b.HasIndex("UsuarioId", "Estado", "FechaProgramada");
+
+                    b.ToTable("Notificaciones");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.NotificacionAutomatica", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<int>("DiasDespuesSiembra")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Mensaje")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("TipoCultivoId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TipoEvento")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TipoCultivoId");
+
+                    b.HasIndex("TipoEvento");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("NotificacionesAutomaticas");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.ProcesoAgricola", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("CostoManoObra")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<int>("CultivoId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Observaciones")
+                        .HasColumnType("text");
+
+                    b.Property<int>("TipoProcesoId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CultivoId");
+
+                    b.HasIndex("Fecha");
+
+                    b.HasIndex("TipoProcesoId");
+
+                    b.ToTable("ProcesosAgricolas");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Proveedor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Contacto")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("Direccion")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("Ruc")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("Telefono")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("TipoServicio")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Nombre");
+
+                    b.HasIndex("Ruc")
+                        .IsUnique()
+                        .HasFilter("[Ruc] IS NOT NULL");
+
+                    b.HasIndex("TipoServicio");
+
+                    b.ToTable("Proveedores");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Terreno", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AgricultorId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("AreaHectareas")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<decimal>("CostoAlquiler")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("TipoTenencia")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("Ubicacion")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AgricultorId");
+
+                    b.ToTable("Terrenos");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.TipoCultivo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("InstruccionesFumigaciones")
+                        .HasColumnType("text");
+
+                    b.Property<string>("InstruccionesRiegos")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<int>("TiempoSiembraCosecha")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Nombre")
+                        .IsUnique();
+
+                    b.ToTable("TipoCultivos");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.TipoInsumo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Categoria")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("Descripcion")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Categoria");
+
+                    b.HasIndex("Nombre")
+                        .IsUnique();
+
+                    b.ToTable("TipoInsumos");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.TipoProceso", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("Descripcion")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Nombre")
+                        .IsUnique();
+
+                    b.ToTable("TipoProcesos");
+                });
+
             modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Usuario", b =>
                 {
                     b.Property<int>("Id")
@@ -43,7 +665,7 @@ namespace SistemaGestionAgricola.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
-                    b.Property<string>("Password")
+                    b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
@@ -66,6 +688,307 @@ namespace SistemaGestionAgricola.Migrations
                         .IsUnique();
 
                     b.ToTable("Usuarios");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2025, 11, 30, 22, 59, 25, 659, DateTimeKind.Utc).AddTicks(7635),
+                            Email = "admin@sistema.com",
+                            Nombre = "Administrador Principal",
+                            PasswordHash = "$2a$11$rL5A2H5Y4X3eB7V8C9dQZOB7nT2C4E6F7G8H9I0J1K2L3M4N5O6P7Q8R9S0T",
+                            Rol = "admin",
+                            Telefono = "123456789",
+                            UpdatedAt = new DateTime(2025, 11, 30, 22, 59, 25, 659, DateTimeKind.Utc).AddTicks(7645)
+                        });
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Venta", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Cantidad")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<int>("CompradorId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CosechaId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("CostoFlete")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Observaciones")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("PrecioKg")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompradorId");
+
+                    b.HasIndex("CosechaId");
+
+                    b.HasIndex("Fecha");
+
+                    b.ToTable("Ventas");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Agricultor", b =>
+                {
+                    b.HasOne("SistemaGestionAgricola.Models.Entities.Usuario", "Usuario")
+                        .WithOne("Agricultor")
+                        .HasForeignKey("SistemaGestionAgricola.Models.Entities.Agricultor", "UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Cosecha", b =>
+                {
+                    b.HasOne("SistemaGestionAgricola.Models.Entities.Cultivo", "Cultivo")
+                        .WithMany("Cosechas")
+                        .HasForeignKey("CultivoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cultivo");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Cultivo", b =>
+                {
+                    b.HasOne("SistemaGestionAgricola.Models.Entities.Terreno", "Terreno")
+                        .WithMany("Cultivos")
+                        .HasForeignKey("TerrenoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SistemaGestionAgricola.Models.Entities.TipoCultivo", "TipoCultivo")
+                        .WithMany("Cultivos")
+                        .HasForeignKey("TipoCultivoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Terreno");
+
+                    b.Navigation("TipoCultivo");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.DetallePreparacionTerreno", b =>
+                {
+                    b.HasOne("SistemaGestionAgricola.Models.Entities.ProcesoAgricola", "ProcesoAgricola")
+                        .WithMany("DetallesPreparacionTerreno")
+                        .HasForeignKey("ProcesoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ProcesoAgricola");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.InsumoUtilizado", b =>
+                {
+                    b.HasOne("SistemaGestionAgricola.Models.Entities.ProcesoAgricola", "ProcesoAgricola")
+                        .WithMany("InsumosUtilizados")
+                        .HasForeignKey("ProcesoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SistemaGestionAgricola.Models.Entities.Proveedor", "Proveedor")
+                        .WithMany("InsumosUtilizados")
+                        .HasForeignKey("ProveedorId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("SistemaGestionAgricola.Models.Entities.TipoInsumo", "TipoInsumo")
+                        .WithMany("InsumosUtilizados")
+                        .HasForeignKey("TipoInsumoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ProcesoAgricola");
+
+                    b.Navigation("Proveedor");
+
+                    b.Navigation("TipoInsumo");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.ManoObra", b =>
+                {
+                    b.HasOne("SistemaGestionAgricola.Models.Entities.ProcesoAgricola", "ProcesoAgricola")
+                        .WithMany("ManosObra")
+                        .HasForeignKey("ProcesoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ProcesoAgricola");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Notificacion", b =>
+                {
+                    b.HasOne("SistemaGestionAgricola.Models.Entities.Cultivo", "Cultivo")
+                        .WithMany("Notificaciones")
+                        .HasForeignKey("CultivoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SistemaGestionAgricola.Models.Entities.Usuario", "Usuario")
+                        .WithMany("Notificaciones")
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cultivo");
+
+                    b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.NotificacionAutomatica", b =>
+                {
+                    b.HasOne("SistemaGestionAgricola.Models.Entities.TipoCultivo", "TipoCultivo")
+                        .WithMany("NotificacionesAutomaticas")
+                        .HasForeignKey("TipoCultivoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SistemaGestionAgricola.Models.Entities.Usuario", "Usuario")
+                        .WithMany("NotificacionesAutomaticas")
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TipoCultivo");
+
+                    b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.ProcesoAgricola", b =>
+                {
+                    b.HasOne("SistemaGestionAgricola.Models.Entities.Cultivo", "Cultivo")
+                        .WithMany("ProcesosAgricolas")
+                        .HasForeignKey("CultivoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SistemaGestionAgricola.Models.Entities.TipoProceso", "TipoProceso")
+                        .WithMany("ProcesosAgricolas")
+                        .HasForeignKey("TipoProcesoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Cultivo");
+
+                    b.Navigation("TipoProceso");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Terreno", b =>
+                {
+                    b.HasOne("SistemaGestionAgricola.Models.Entities.Agricultor", "Agricultor")
+                        .WithMany("Terrenos")
+                        .HasForeignKey("AgricultorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Agricultor");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Venta", b =>
+                {
+                    b.HasOne("SistemaGestionAgricola.Models.Entities.Comprador", "Comprador")
+                        .WithMany("Ventas")
+                        .HasForeignKey("CompradorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SistemaGestionAgricola.Models.Entities.Cosecha", "Cosecha")
+                        .WithMany("Ventas")
+                        .HasForeignKey("CosechaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Comprador");
+
+                    b.Navigation("Cosecha");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Agricultor", b =>
+                {
+                    b.Navigation("Terrenos");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Comprador", b =>
+                {
+                    b.Navigation("Ventas");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Cosecha", b =>
+                {
+                    b.Navigation("Ventas");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Cultivo", b =>
+                {
+                    b.Navigation("Cosechas");
+
+                    b.Navigation("Notificaciones");
+
+                    b.Navigation("ProcesosAgricolas");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.ProcesoAgricola", b =>
+                {
+                    b.Navigation("DetallesPreparacionTerreno");
+
+                    b.Navigation("InsumosUtilizados");
+
+                    b.Navigation("ManosObra");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Proveedor", b =>
+                {
+                    b.Navigation("InsumosUtilizados");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Terreno", b =>
+                {
+                    b.Navigation("Cultivos");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.TipoCultivo", b =>
+                {
+                    b.Navigation("Cultivos");
+
+                    b.Navigation("NotificacionesAutomaticas");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.TipoInsumo", b =>
+                {
+                    b.Navigation("InsumosUtilizados");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.TipoProceso", b =>
+                {
+                    b.Navigation("ProcesosAgricolas");
+                });
+
+            modelBuilder.Entity("SistemaGestionAgricola.Models.Entities.Usuario", b =>
+                {
+                    b.Navigation("Agricultor");
+
+                    b.Navigation("Notificaciones");
+
+                    b.Navigation("NotificacionesAutomaticas");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/home/roosivelt/Documentos/Ing. SIstemas/S-6/Programacion de servicios web/Final/SistemaGestionAgricola/SistemaGestionAgricola.csproj": {}
+    "/home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/SistemaGestionAgricola.csproj": {}
   },
   "projects": {
-    "/home/roosivelt/Documentos/Ing. SIstemas/S-6/Programacion de servicios web/Final/SistemaGestionAgricola/SistemaGestionAgricola.csproj": {
+    "/home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/SistemaGestionAgricola.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/roosivelt/Documentos/Ing. SIstemas/S-6/Programacion de servicios web/Final/SistemaGestionAgricola/SistemaGestionAgricola.csproj",
+        "projectUniqueName": "/home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/SistemaGestionAgricola.csproj",
         "projectName": "SistemaGestionAgricola",
-        "projectPath": "/home/roosivelt/Documentos/Ing. SIstemas/S-6/Programacion de servicios web/Final/SistemaGestionAgricola/SistemaGestionAgricola.csproj",
+        "projectPath": "/home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/SistemaGestionAgricola.csproj",
         "packagesPath": "/home/roosivelt/.nuget/packages/",
-        "outputPath": "/home/roosivelt/Documentos/Ing. SIstemas/S-6/Programacion de servicios web/Final/SistemaGestionAgricola/obj/",
+        "outputPath": "/home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/roosivelt/.nuget/NuGet/NuGet.Config"
@@ -44,6 +44,14 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
+            "BCrypt.Net-Next": {
+              "target": "Package",
+              "version": "[4.0.3, )"
+            },
+            "MailKit": {
+              "target": "Package",
+              "version": "[4.14.1, )"
+            },
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
               "target": "Package",
               "version": "[9.0.10, )"
@@ -61,6 +69,10 @@
               "suppressParent": "All",
               "target": "Package",
               "version": "[9.0.10, )"
+            },
+            "MimeKit": {
+              "target": "Package",
+              "version": "[4.14.0, )"
             },
             "Pomelo.EntityFrameworkCore.MySql": {
               "target": "Package",
@@ -94,7 +106,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/home/roosivelt/.dotnet/sdk/9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/home/roosivelt/.dotnet/sdk/9.0.308/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
