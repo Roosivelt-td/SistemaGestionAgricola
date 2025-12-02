@@ -27,7 +27,6 @@ namespace SistemaGestionAgricola.Models.Configurations
                 .HasMaxLength(100);
             
             builder.Property(u => u.Apellidos)
-                .IsRequired()
                 .HasMaxLength(100);
             
             builder.Property(u => u.Telefono)
@@ -58,6 +57,7 @@ namespace SistemaGestionAgricola.Models.Configurations
                     PasswordHash = "$2a$11$rL5A2H5Y4X3eB7V8C9dQZOB7nT2C4E6F7G8H9I0J1K2L3M4N5O6P7Q8R9S0T", // "admin123"
                     Rol = "admin",
                     Nombre = "Administrador Principal",
+                    Apellidos = "Sistema",
                     Telefono = "123456789",
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
