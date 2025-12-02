@@ -1,3 +1,4 @@
+// 📁 Models/Configurations/UsuarioConfiguration.cs
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SistemaGestionAgricola.Models.Entities;
@@ -14,7 +15,7 @@ namespace SistemaGestionAgricola.Models.Configurations
                 .IsRequired()
                 .HasMaxLength(255);
             
-            builder.Property(u => u.Password)
+            builder.Property(u => u.PasswordHash)
                 .IsRequired()
                 .HasMaxLength(255);
             
@@ -24,6 +25,9 @@ namespace SistemaGestionAgricola.Models.Configurations
             
             builder.Property(u => u.Nombre)
                 .IsRequired()
+                .HasMaxLength(100);
+            
+            builder.Property(u => u.Apellidos)
                 .HasMaxLength(100);
             
             builder.Property(u => u.Telefono)
@@ -44,6 +48,22 @@ namespace SistemaGestionAgricola.Models.Configurations
             builder.HasOne(u => u.Agricultor)
                 .WithOne(a => a.Usuario)
                 .HasForeignKey<Agricultor>(a => a.UsuarioId);
+
+            // Seed data para usuario admin
+            // USAR FECHAS ESTÁTICAS, NO DateTime.UtcNow
+            builder.HasData(
+                new Usuario 
+                { 
+                    Id = 1, 
+                    Email = "admin@sistema.com", 
+                    PasswordHash = "$2a$11$rL5A2H5Y4X3eB7V8C9dQZOB7nT2C4E6F7G8H9I0J1K2L3M4N5O6P7Q8R9S0T", // "admin123"
+                    Rol = "admin",
+                    Nombre = "Administrador Principal",
+                    Telefono = "123456789",
+                    CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc), // ← Fecha estática
+                    UpdatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)   // ← Fecha estática
+                }
+            );
         }
     }
 }

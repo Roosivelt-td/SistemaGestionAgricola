@@ -141,14 +141,17 @@
 /home/roosivelt/Documentos/Ing. SIstemas/S-6/Programacion de servicios web/Final/SistemaGestionAgricola/obj/Debug/net9.0/ref/SistemaGestionAgricola.dll
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/appsettings.Development.json
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/appsettings.json
+/home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/SistemaGestionAgricola.staticwebassets.runtime.json
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/SistemaGestionAgricola.staticwebassets.endpoints.json
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/SistemaGestionAgricola
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/SistemaGestionAgricola.deps.json
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/SistemaGestionAgricola.runtimeconfig.json
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/SistemaGestionAgricola.dll
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/SistemaGestionAgricola.pdb
+/home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/BCrypt.Net-Next.dll
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/Humanizer.dll
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
+/home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/Microsoft.AspNetCore.JsonPatch.dll
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/Microsoft.AspNetCore.OpenApi.dll
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/Microsoft.Bcl.AsyncInterfaces.dll
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/Microsoft.Build.Locator.dll
@@ -164,6 +167,7 @@
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/Microsoft.EntityFrameworkCore.Relational.dll
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/Microsoft.Extensions.Caching.Abstractions.dll
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/Microsoft.Extensions.Caching.Memory.dll
+/home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/Microsoft.Extensions.Configuration.dll
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/Microsoft.Extensions.Configuration.Abstractions.dll
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/Microsoft.Extensions.DependencyInjection.dll
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll
@@ -181,6 +185,7 @@
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/Microsoft.OpenApi.dll
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/Mono.TextTemplating.dll
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/MySqlConnector.dll
+/home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/Newtonsoft.Json.dll
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/Pomelo.EntityFrameworkCore.MySql.dll
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/Swashbuckle.AspNetCore.Swagger.dll
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/bin/Debug/net9.0/Swashbuckle.AspNetCore.SwaggerGen.dll
@@ -270,6 +275,7 @@
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/obj/Debug/net9.0/rjsmrazor.dswa.cache.json
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/obj/Debug/net9.0/rjsmcshtml.dswa.cache.json
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/obj/Debug/net9.0/scopedcss/bundle/SistemaGestionAgricola.styles.css
+/home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/obj/Debug/net9.0/compressed/o1vf0z4ale-gblulqhm04.gz
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/obj/Debug/net9.0/staticwebassets.build.json
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/obj/Debug/net9.0/staticwebassets.build.json.cache
 /home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/obj/Debug/net9.0/staticwebassets.development.json

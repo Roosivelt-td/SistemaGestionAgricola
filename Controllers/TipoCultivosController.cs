@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaGestionAgricola.Data;
@@ -8,6 +10,7 @@ namespace SistemaGestionAgricola.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize] // ← Proteger por defecto, pero GET puede ser público
     public class TipoCultivosController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -19,6 +22,7 @@ namespace SistemaGestionAgricola.Controllers
 
         // GET: api/TipoCultivos
         [HttpGet]
+        [AllowAnonymous] // ← Hacer público si se desea acceso sin autenticación
         public async Task<ActionResult<IEnumerable<TipoCultivoDTO>>> GetTipoCultivos()
         {
             try
@@ -45,6 +49,7 @@ namespace SistemaGestionAgricola.Controllers
 
         // GET: api/TipoCultivos/5
         [HttpGet("{id}")]
+        [AllowAnonymous] // ← Hacer público si se desea acceso sin autenticación
         public async Task<ActionResult<TipoCultivoDTO>> GetTipoCultivo(int id)
         {
             try
@@ -77,6 +82,7 @@ namespace SistemaGestionAgricola.Controllers
 
         // POST: api/TipoCultivos
         [HttpPost]
+        [Authorize(Roles = "admin")] // ← Solo admin puede crear
         public async Task<ActionResult<TipoCultivoDTO>> PostTipoCultivo(CreateTipoCultivoDTO createTipoCultivoDTO)
         {
             try
@@ -128,6 +134,7 @@ namespace SistemaGestionAgricola.Controllers
 
         // PUT: api/TipoCultivos/5
         [HttpPut("{id}")]
+        [Authorize(Roles = "admin")] // ← Solo admin puede actualizar
         public async Task<IActionResult> PutTipoCultivo(int id, UpdateTipoCultivoDTO updateTipoCultivoDTO)
         {
             try
@@ -185,6 +192,7 @@ namespace SistemaGestionAgricola.Controllers
 
         // DELETE: api/TipoCultivos/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "admin")] // ← Solo admin puede eliminar
         public async Task<IActionResult> DeleteTipoCultivo(int id)
         {
             try

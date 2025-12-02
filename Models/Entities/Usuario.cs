@@ -14,7 +14,7 @@ namespace SistemaGestionAgricola.Models.Entities
 
         [Required]
         [MaxLength(255)]
-        public string Password { get; set; } = string.Empty;
+        public string PasswordHash { get; set; } = string.Empty; // CAMBIADO de Password a PasswordHash
 
         [Required]
         [MaxLength(20)]
@@ -23,6 +23,8 @@ namespace SistemaGestionAgricola.Models.Entities
         [Required]
         [MaxLength(100)]
         public string Nombre { get; set; } = string.Empty;
+
+        [MaxLength(100)] public string Apellidos { get; set; } = string.Empty;
 
         [MaxLength(20)]
         public string? Telefono { get; set; }
@@ -34,6 +36,7 @@ namespace SistemaGestionAgricola.Models.Entities
         public virtual Agricultor? Agricultor { get; set; }
         public virtual ICollection<NotificacionAutomatica> NotificacionesAutomaticas { get; set; } = new List<NotificacionAutomatica>();
         public virtual ICollection<Notificacion> Notificaciones { get; set; } = new List<Notificacion>();
+        
         public Usuario()
         {
             // Establecer valores por defecto en el constructor

@@ -6,6 +6,7 @@ namespace SistemaGestionAgricola.Models.DTOs
         public string Email { get; set; } = string.Empty;
         public string Rol { get; set; } = string.Empty;
         public string Nombre { get; set; } = string.Empty;
+        public string Apellidos { get; set; } = string.Empty;
         public string? Telefono { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
@@ -17,6 +18,7 @@ namespace SistemaGestionAgricola.Models.DTOs
         public string Password { get; set; } = string.Empty;
         public string Rol { get; set; } = string.Empty;
         public string Nombre { get; set; } = string.Empty;
+        public string Apellidos { get; set; } = string.Empty;
         public string? Telefono { get; set; }
     }
 
@@ -26,6 +28,7 @@ namespace SistemaGestionAgricola.Models.DTOs
         public string? Password { get; set; }
         public string? Rol { get; set; }
         public string? Nombre { get; set; }
+        public string? Apellidos { get; set; }
         public string? Telefono { get; set; }
     }
 }

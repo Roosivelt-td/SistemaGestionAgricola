@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaGestionAgricola.Data;
@@ -8,6 +10,7 @@ namespace SistemaGestionAgricola.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize] // ← PROTECCIÓN AGREGADA
     public class ManosObraController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -23,7 +26,18 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
-                var manosObra = await _context.ManosObra
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                IQueryable<ManoObra> query = _context.ManosObra;
+
+                // Si no es admin, solo ver su mano de obra
+                if (currentUserRole != "admin")
+                {
+                    query = query.Where(m => m.ProcesoAgricola.Cultivo.Terreno.Agricultor.UsuarioId == currentUserId);
+                }
+
+                var manosObra = await query
                     .Include(m => m.ProcesoAgricola)
                         .ThenInclude(pa => pa.TipoProceso)
                     .Include(m => m.ProcesoAgricola)
@@ -62,6 +76,9 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
                 var manoObra = await _context.ManosObra
                     .Include(m => m.ProcesoAgricola)
                         .ThenInclude(pa => pa.TipoProceso)
@@ -93,6 +110,18 @@ namespace SistemaGestionAgricola.Controllers
                     return NotFound($"Mano de obra con ID {id} no encontrada");
                 }
 
+                // Verificar permisos
+                if (currentUserRole != "admin")
+                {
+                    var agricultorUsuarioId = await _context.ProcesosAgricolas
+                        .Where(pa => pa.Id == manoObra.ProcesoId)
+                        .Select(pa => pa.Cultivo.Terreno.Agricultor.UsuarioId)
+                        .FirstOrDefaultAsync();
+
+                    if (agricultorUsuarioId != currentUserId)
+                        return Forbid();
+                }
+
                 return manoObra;
             }
             catch (Exception ex)
@@ -107,6 +136,21 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                // Verificar permisos del proceso
+                if (currentUserRole != "admin")
+                {
+                    var procesoUsuarioId = await _context.ProcesosAgricolas
+                        .Where(pa => pa.Id == procesoId)
+                        .Select(pa => pa.Cultivo.Terreno.Agricultor.UsuarioId)
+                        .FirstOrDefaultAsync();
+
+                    if (procesoUsuarioId != currentUserId)
+                        return Forbid();
+                }
+
                 var manosObra = await _context.ManosObra
                     .Include(m => m.ProcesoAgricola)
                         .ThenInclude(pa => pa.TipoProceso)
@@ -147,6 +191,9 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
                 // Validar campos requeridos
                 if (createManoObraDTO.NumeroPeones <= 0)
                 {
@@ -173,6 +220,10 @@ namespace SistemaGestionAgricola.Controllers
                 {
                     return BadRequest("El proceso especificado no existe");
                 }
+
+                // Verificar permisos del proceso
+                if (currentUserRole != "admin" && proceso.Cultivo.Terreno.Agricultor.UsuarioId != currentUserId)
+                    return Forbid();
 
                 // Calcular costo total automáticamente
                 var costoTotal = createManoObraDTO.NumeroPeones * createManoObraDTO.DiasTrabajo * createManoObraDTO.CostoPorDia;
@@ -224,11 +275,23 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
-                var manoObra = await _context.ManosObra.FindAsync(id);
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                var manoObra = await _context.ManosObra
+                    .Include(m => m.ProcesoAgricola)
+                        .ThenInclude(pa => pa.Cultivo)
+                            .ThenInclude(c => c.Terreno)
+                    .FirstOrDefaultAsync(m => m.Id == id);
+                
                 if (manoObra == null)
                 {
                     return NotFound($"Mano de obra con ID {id} no encontrada");
                 }
+
+                // Verificar permisos
+                if (currentUserRole != "admin" && manoObra.ProcesoAgricola.Cultivo.Terreno.Agricultor.UsuarioId != currentUserId)
+                    return Forbid();
 
                 // Actualizar solo los campos que se proporcionaron
                 bool recalcCostoTotal = false;
@@ -291,11 +354,23 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
-                var manoObra = await _context.ManosObra.FindAsync(id);
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                var manoObra = await _context.ManosObra
+                    .Include(m => m.ProcesoAgricola)
+                        .ThenInclude(pa => pa.Cultivo)
+                            .ThenInclude(c => c.Terreno)
+                    .FirstOrDefaultAsync(m => m.Id == id);
+                
                 if (manoObra == null)
                 {
                     return NotFound($"Mano de obra con ID {id} no encontrada");
                 }
+
+                // Verificar permisos
+                if (currentUserRole != "admin" && manoObra.ProcesoAgricola.Cultivo.Terreno.Agricultor.UsuarioId != currentUserId)
+                    return Forbid();
 
                 _context.ManosObra.Remove(manoObra);
                 await _context.SaveChangesAsync();

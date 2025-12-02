@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaGestionAgricola.Data;
@@ -8,6 +10,7 @@ namespace SistemaGestionAgricola.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize] // ← PROTECCIÓN AGREGADA
     public class CosechasController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -23,7 +26,18 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
-                var cosechas = await _context.Cosechas
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                IQueryable<Cosecha> query = _context.Cosechas;
+
+                // Si no es admin, solo ver sus cosechas
+                if (currentUserRole != "admin")
+                {
+                    query = query.Where(c => c.Cultivo.Terreno.Agricultor.UsuarioId == currentUserId);
+                }
+
+                var cosechas = await query
                     .Include(c => c.Cultivo)
                         .ThenInclude(c => c.TipoCultivo)
                     .Include(c => c.Cultivo)
@@ -69,6 +83,9 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
                 var cosecha = await _context.Cosechas
                     .Include(c => c.Cultivo)
                         .ThenInclude(c => c.TipoCultivo)
@@ -101,6 +118,18 @@ namespace SistemaGestionAgricola.Controllers
                     return NotFound($"Cosecha con ID {id} no encontrada");
                 }
 
+                // Verificar permisos
+                if (currentUserRole != "admin")
+                {
+                    var agricultorUsuarioId = await _context.Cultivos
+                        .Where(c => c.Id == cosecha.CultivoId)
+                        .Select(c => c.Terreno.Agricultor.UsuarioId)
+                        .FirstOrDefaultAsync();
+
+                    if (agricultorUsuarioId != currentUserId)
+                        return Forbid();
+                }
+
                 // Calcular kilos disponibles
                 cosecha.KilosDisponibles = cosecha.CantidadKilos - cosecha.KilosVendidos;
 
@@ -118,6 +147,21 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                // Verificar permisos del cultivo
+                if (currentUserRole != "admin")
+                {
+                    var cultivoUsuarioId = await _context.Cultivos
+                        .Where(c => c.Id == cultivoId)
+                        .Select(c => c.Terreno.Agricultor.UsuarioId)
+                        .FirstOrDefaultAsync();
+
+                    if (cultivoUsuarioId != currentUserId)
+                        return Forbid();
+                }
+
                 var cosechas = await _context.Cosechas
                     .Include(c => c.Cultivo)
                         .ThenInclude(c => c.TipoCultivo)
@@ -165,6 +209,9 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
                 // Validar campos requeridos
                 if (createCosechaDTO.Fecha == default)
                 {
@@ -188,6 +235,10 @@ namespace SistemaGestionAgricola.Controllers
                 {
                     return BadRequest("El cultivo especificado no existe");
                 }
+
+                // Verificar permisos del cultivo
+                if (currentUserRole != "admin" && cultivo.Terreno.Agricultor.UsuarioId != currentUserId)
+                    return Forbid();
 
                 // Validar que la fecha de cosecha no sea anterior a la fecha de siembra
                 if (createCosechaDTO.Fecha < cultivo.FechaSiembra)
@@ -243,8 +294,12 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
                 var cosecha = await _context.Cosechas
                     .Include(c => c.Cultivo)
+                        .ThenInclude(c => c.Terreno)
                     .Include(c => c.Ventas)
                     .FirstOrDefaultAsync(c => c.Id == id);
                 
@@ -252,6 +307,10 @@ namespace SistemaGestionAgricola.Controllers
                 {
                     return NotFound($"Cosecha con ID {id} no encontrada");
                 }
+
+                // Verificar permisos
+                if (currentUserRole != "admin" && cosecha.Cultivo.Terreno.Agricultor.UsuarioId != currentUserId)
+                    return Forbid();
 
                 // Validar fecha si se está actualizando
                 if (updateCosechaDTO.Fecha.HasValue)
@@ -312,7 +371,12 @@ namespace SistemaGestionAgricola.Controllers
         {
             try
             {
+                var currentUserId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
                 var cosecha = await _context.Cosechas
+                    .Include(c => c.Cultivo)
+                        .ThenInclude(c => c.Terreno)
                     .Include(c => c.Ventas)
                     .FirstOrDefaultAsync(c => c.Id == id);
                 
@@ -320,6 +384,10 @@ namespace SistemaGestionAgricola.Controllers
                 {
                     return NotFound($"Cosecha con ID {id} no encontrada");
                 }
+
+                // Verificar permisos
+                if (currentUserRole != "admin" && cosecha.Cultivo.Terreno.Agricultor.UsuarioId != currentUserId)
+                    return Forbid();
 
                 // Verificar si hay ventas asociadas
                 if (cosecha.Ventas.Any())

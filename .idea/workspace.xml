@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="554da277-1d07-4e6c-aa9b-4fb06dce638d" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Controllers/AuthController.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Models/DTOs/AuthDTO.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Models/Entities/Rol.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Services/IJwtService.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Services/IPasswordService.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Services/IPasswordValidator.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Services/PasswordService.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Services/PasswordValidator.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/AgricultoresController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/AgricultoresController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/CompradoresController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/CompradoresController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/CosechasController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/CosechasController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/CultivosController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/CultivosController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/DetallesPreparacionTerrenoController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/DetallesPreparacionTerrenoController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/InsumosUtilizadosController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/InsumosUtilizadosController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/ManosObraController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/ManosObraController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/NotificacionesAutomaticasController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/NotificacionesAutomaticasController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/NotificacionesController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/NotificacionesController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/ProcesosAgricolasController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/ProcesosAgricolasController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/ProveedoresController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/ProveedoresController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/TerrenosController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/TerrenosController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/TipoCultivosController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/TipoCultivosController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/TipoInsumosController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/TipoInsumosController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/TipoProcesosController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/TipoProcesosController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/UsuariosController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/UsuariosController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/VentasController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/VentasController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20251106053352_CreateUsuariosTable.Designer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20251106053352_CreateUsuariosTable.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20251106171506_CreateAgricultoresTable.Designer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20251106171506_CreateAgricultoresTable.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20251106181012_CreateTerrenosTable.Designer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20251106181012_CreateTerrenosTable.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20251106195943_CreateTipoCultivosTable.Designer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20251106195943_CreateTipoCultivosTable.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20251107025721_CreateCultivosTableOnly.Designer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20251107025721_CreateCultivosTableOnly.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20251107041135_CreateTipoProcesosTable.Designer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20251107041135_CreateTipoProcesosTable.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20251107162450_CreateProcesosAgricolasTable.Designer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20251107162450_CreateProcesosAgricolasTable.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20251107164035_CreateDetallesPreparacionTerrenoTable.Designer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20251107164035_CreateDetallesPreparacionTerrenoTable.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20251107202216_CreateTipoInsumosTable.Designer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20251107202216_CreateTipoInsumosTable.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20251107202832_CreateInsumosUtilizadosTable.Designer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20251107202832_CreateInsumosUtilizadosTable.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20251107204158_CreateManosObraTable.Designer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20251107204158_CreateManosObraTable.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20251108020341_CreateProveedoresTable.Designer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20251108020341_CreateProveedoresTable.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20251112135347_CreateVentasTable.Designer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20251112135347_CreateVentasTable.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20251128021529_CreateNotificaciones.Designer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/20251128021529_CreateNotificaciones.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Migrations/AppDbContextModelSnapshot.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/Configurations/UsuarioConfiguration.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Configurations/UsuarioConfiguration.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/DTOs/UsuarioDTO.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/DTOs/UsuarioDTO.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/Entities/Usuario.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Entities/Usuario.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/UsuarioService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/JwtService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SistemaGestionAgricola.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/SistemaGestionAgricola.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/appsettings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net9.0/Microsoft.Extensions.Configuration.Abstractions.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net9.0/Microsoft.Extensions.Configuration.Abstractions.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net9.0/Microsoft.Extensions.Primitives.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net9.0/Microsoft.Extensions.Primitives.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net9.0/SistemaGestionAgricola.deps.json" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net9.0/SistemaGestionAgricola.deps.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net9.0/SistemaGestionAgricola.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net9.0/SistemaGestionAgricola.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net9.0/SistemaGestionAgricola.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net9.0/SistemaGestionAgricola.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net9.0/SistemaGestionAgricola.staticwebassets.endpoints.json" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net9.0/SistemaGestionAgricola.staticwebassets.endpoints.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net9.0/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net9.0/appsettings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/SistemaGestionAgricola.AssemblyInfo.cs" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/SistemaGestionAgricola.AssemblyInfo.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/SistemaGestionAgricola.AssemblyInfoInputs.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/SistemaGestionAgricola.AssemblyInfoInputs.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/SistemaGestionAgricola.assets.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/SistemaGestionAgricola.assets.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/SistemaGestionAgricola.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/SistemaGestionAgricola.csproj.AssemblyReference.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/SistemaGestionAgricola.csproj.CoreCompileInputs.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/SistemaGestionAgricola.csproj.CoreCompileInputs.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/SistemaGestionAgricola.csproj.FileListAbsolute.txt" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/SistemaGestionAgricola.csproj.FileListAbsolute.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/SistemaGestionAgricola.dll" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/SistemaGestionAgricola.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/SistemaGestionAgricola.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/SistemaGestionAgricola.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/SistemaGestionAgricola.sourcelink.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/SistemaGestionAgricola.sourcelink.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/ref/SistemaGestionAgricola.dll" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/ref/SistemaGestionAgricola.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/refint/SistemaGestionAgricola.dll" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/refint/SistemaGestionAgricola.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/rjsmcshtml.dswa.cache.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/rjsmcshtml.dswa.cache.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/rjsmrazor.dswa.cache.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/rjsmrazor.dswa.cache.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/rpswa.dswa.cache.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/rpswa.dswa.cache.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/staticwebassets.build.endpoints.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/staticwebassets.build.endpoints.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/staticwebassets.build.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/staticwebassets.build.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/staticwebassets.build.json.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/staticwebassets.build.json.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/SistemaGestionAgricola.csproj.nuget.dgspec.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/SistemaGestionAgricola.csproj.nuget.dgspec.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/project.assets.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/project.assets.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/project.nuget.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/project.nuget.cache" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="16-notificaciones" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/Controllers/AgricultoresController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Controllers/AuthController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Controllers/CompradoresController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Controllers/CosechasController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Controllers/CultivosController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Controllers/DetallesPreparacionTerrenoController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Controllers/InsumosUtilizadosController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Controllers/ManosObraController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Controllers/NotificacionesAutomaticasController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Controllers/NotificacionesController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Controllers/ProcesosAgricolasController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Controllers/ProveedoresController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Controllers/TerrenosController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Controllers/TipoCultivosController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Controllers/TipoInsumosController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Controllers/TipoProcesosController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Controllers/UsuariosController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Controllers/VentasController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Data/AppDbContext.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Models/Configurations/TipoInsumoConfiguration.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Models/Configurations/UsuarioConfiguration.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Models/DTOs/AuthDTO.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Models/DTOs/UsuarioDTO.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Models/Entities/Rol.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Models/Entities/TipoProceso.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Models/Entities/Usuario.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Program.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Services/IJwtService.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Services/IPasswordService.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Services/IPasswordValidator.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Services/JwtService.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Services/PasswordService.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Services/PasswordValidator.cs" root0="SKIP_HIGHLIGHTING" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2
+}</component>
+  <component name="ProjectId" id="36GtSlmGcACvEdliDLru5kgfVZH" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;token&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="554da277-1d07-4e6c-aa9b-4fb06dce638d" name="Changes" comment="" />
+      <created>1764644742608</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1764644742608</updated>
+      <workItem from="1764644744861" duration="12344000" />
+      <workItem from="1764683114111" duration="9427000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="origin/16-notificaciones" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
+          <properties exception="System.OperationCanceledException" breakIfHandledByOtherCode="false" displayValue="System.OperationCanceledException" />
+          <option name="timeStamp" value="1" />
+        </breakpoint>
+        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
+          <properties exception="System.Threading.Tasks.TaskCanceledException" breakIfHandledByOtherCode="false" displayValue="System.Threading.Tasks.TaskCanceledException" />
+          <option name="timeStamp" value="2" />
+        </breakpoint>
+        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
+          <properties exception="System.Threading.ThreadAbortException" breakIfHandledByOtherCode="false" displayValue="System.Threading.ThreadAbortException" />
+          <option name="timeStamp" value="3" />
+        </breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>
