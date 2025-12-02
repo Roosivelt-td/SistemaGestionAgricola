@@ -108,12 +108,13 @@ builder.Services.AddSwaggerGen(c =>
     }
 });
 
-var app = builder.Build();
-
-//builder.Logging.ClearProviders();
+// Configurar logging antes de construir la aplicación
+builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 builder.Logging.SetMinimumLevel(LogLevel.Debug);
+
+var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
