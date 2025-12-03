@@ -1,181 +1,230 @@
 using System.Net;
 using System.Net.Mail;
+using System.Security.Authentication;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Logging;
-using SistemaGestionAgricola.Models.Configurations;
 
 namespace SistemaGestionAgricola.Services
 {
+    // 1. Configuración de Email
+    public class EmailConfiguration
+    {
+        public string SmtpServer { get; set; } = "smtp.gmail.com";
+        public int SmtpPort { get; set; } = 587;
+        public string SenderEmail { get; set; } = string.Empty;
+        public string SenderName { get; set; } = "Sistema de Gestión Agrícola";
+        public string Username { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public bool EnableSsl { get; set; } = true;
+        public int Timeout { get; set; } = 30000;
+    }
+
+    // 2. Implementación del servicio de Email
     public class EmailService : IEmailService
     {
-        private readonly EmailSettings _emailSettings;
+        private readonly EmailConfiguration _settings;
         private readonly ILogger<EmailService> _logger;
 
-        public EmailService(IOptions<EmailSettings> emailSettings, ILogger<EmailService> logger)
+        public EmailService(IOptions<EmailConfiguration> settings, ILogger<EmailService> logger)
         {
-            _emailSettings = emailSettings.Value;
+            _settings = settings.Value;
             _logger = logger;
+            
+            // Log de configuración
+            _logger.LogInformation("=== 🛠️ CONFIGURACIÓN EmailService ===");
+            _logger.LogInformation($"SmtpServer: '{_settings.SmtpServer ?? "NULL"}'");
+            _logger.LogInformation($"SmtpPort: {_settings.SmtpPort}");
+            _logger.LogInformation($"SenderEmail: '{_settings.SenderEmail ?? "NULL"}'");
+            _logger.LogInformation($"Username: '{_settings.Username ?? "NULL"}'");
+            _logger.LogInformation($"Password configurada: {!string.IsNullOrEmpty(_settings.Password)}");
+            _logger.LogInformation($"EnableSsl: {_settings.EnableSsl}");
+            _logger.LogInformation("===================================");
         }
 
+        // Método base para enviar cualquier email
+        public async Task<bool> SendEmailAsync(string toEmail, string subject, string body)
+        {
+            try
+            {
+                _logger.LogInformation($"📤 Enviando email a: {toEmail}");
+                _logger.LogInformation($"   Asunto: {subject}");
+
+                // Si la configuración está vacía, usa valores por defecto
+                var effectiveSettings = GetEffectiveSettings();
+                
+                // Validaciones
+                if (string.IsNullOrWhiteSpace(toEmail))
+                    throw new ArgumentException("Email destino no puede estar vacío");
+
+                // Crear mensaje
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress(effectiveSettings.SenderEmail, effectiveSettings.SenderName),
+                    Subject = subject,
+                    Body = body,
+                    IsBodyHtml = true,
+                    Priority = MailPriority.Normal
+                };
+                
+                mailMessage.To.Add(toEmail);
+
+                // Configurar cliente SMTP
+                using var smtpClient = new SmtpClient(effectiveSettings.SmtpServer, effectiveSettings.SmtpPort)
+                {
+                    Credentials = new NetworkCredential(effectiveSettings.Username, effectiveSettings.Password),
+                    EnableSsl = effectiveSettings.EnableSsl,
+                    DeliveryMethod = SmtpDeliveryMethod.Network,
+                    Timeout = effectiveSettings.Timeout,
+                    UseDefaultCredentials = false
+                };
+
+                // Enviar email
+                await smtpClient.SendMailAsync(mailMessage);
+                
+                _logger.LogInformation($"✅ Email enviado exitosamente a: {toEmail}");
+                return true;
+            }
+            catch (SmtpException smtpEx)
+            {
+                _logger.LogError(smtpEx, $"❌ Error SMTP enviando email a {toEmail}");
+                
+                // Errores específicos de Gmail
+                switch (smtpEx.StatusCode)
+                {
+                    case SmtpStatusCode.GeneralFailure:
+                        _logger.LogError("Error general de SMTP. Verifica conexión a internet.");
+                        break;
+                    case SmtpStatusCode.ClientNotPermitted:
+                        _logger.LogError("Cliente no permitido. Usa App Password, no contraseña normal.");
+                        break;
+                    case SmtpStatusCode.MustIssueStartTlsFirst:
+                        _logger.LogError("Requiere STARTTLS. Asegúrate que EnableSsl=true y puerto 587.");
+                        break;
+                }
+                
+                return false;
+            }
+            catch (AuthenticationException authEx)
+            {
+                _logger.LogError(authEx, $"🔐 Error de autenticación con Gmail para {toEmail}");
+                _logger.LogError("   Verifica: 1) App Password correcta 2) EnableSsl=true");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"💥 Error inesperado enviando email a {toEmail}");
+                return false;
+            }
+        }
+
+        // Método para obtener configuración efectiva (con valores por defecto si es necesario)
+        private EmailConfiguration GetEffectiveSettings()
+        {
+            // Si la configuración está vacía, usa valores por defecto
+            if (string.IsNullOrWhiteSpace(_settings.SmtpServer) || 
+                string.IsNullOrWhiteSpace(_settings.Username) || 
+                string.IsNullOrWhiteSpace(_settings.Password))
+            {
+                _logger.LogWarning("⚠️ Configuración de email incompleta. Usando valores por defecto.");
+                
+                return new EmailConfiguration
+                {
+                    SmtpServer = "smtp.gmail.com",
+                    SmtpPort = 587,
+                    SenderEmail = "holanokia123@gmail.com",
+                    SenderName = "Sistema Agrícola",
+                    Username = "holanokia123@gmail.com",
+                    Password = "yfouhdklkdhpswby", // Tu App Password
+                    EnableSsl = true,
+                    Timeout = 30000
+                };
+            }
+            
+            return _settings;
+        }
+
+        // Método específico para código de verificación (6 dígitos)
         public async Task<bool> SendVerificationCodeAsync(string toEmail, string code)
         {
-            try
-            {
-                var subject = "Verifica tu cuenta - Sistema Gestión Agrícola";
-                var body = BuildVerificationEmailBody(code);
+            var subject = "✅ Código de verificación - Sistema Agrícola";
+            var body = $@"
+                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;'>
+                    <h2 style='color: #4CAF50;'>Verificación de Email</h2>
+                    <p>Tu código de verificación es:</p>
+                    <div style='text-align: center; margin: 30px 0;'>
+                        <div style='font-size: 36px; font-weight: bold; color: #2E7D32; letter-spacing: 10px;'>
+                            {code}
+                        </div>
+                    </div>
+                    <p>Este código es válido por <strong>10 minutos</strong>.</p>
+                    <br>
+                    <p>Saludos,<br>Equipo Sistema Agrícola</p>
+                </div>
+            ";
 
-                return await SendEmailAsync(toEmail, subject, body);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error enviando código de verificación a {toEmail}");
-                return false;
-            }
+            return await SendEmailAsync(toEmail, subject, body);
         }
 
+        // Método para email de bienvenida
         public async Task<bool> SendWelcomeEmailAsync(string toEmail, string userName)
         {
-            try
-            {
-                var subject = "¡Bienvenido al Sistema de Gestión Agrícola!";
-                var body = BuildWelcomeEmailBody(userName);
+            var subject = "👋 ¡Bienvenido/a al Sistema de Gestión Agrícola!";
+            var body = $@"
+                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;'>
+                    <h1 style='color: #2E7D32;'>¡Bienvenido/a, {userName}!</h1>
+                    <p>Tu cuenta ha sido creada exitosamente en el Sistema de Gestión Agrícola.</p>
+                    <br>
+                    <p>Saludos,<br>Equipo Sistema Agrícola</p>
+                </div>
+            ";
 
-                return await SendEmailAsync(toEmail, subject, body);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error enviando email de bienvenida a {toEmail}");
-                return false;
-            }
+            return await SendEmailAsync(toEmail, subject, body);
         }
 
+        // Método para restablecer contraseña
         public async Task<bool> SendPasswordResetEmailAsync(string toEmail, string resetToken)
         {
-            try
-            {
-                var subject = "Restablecer tu contraseña - Sistema Gestión Agrícola";
-                var body = BuildPasswordResetEmailBody(resetToken);
-
-                return await SendEmailAsync(toEmail, subject, body);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error enviando email de restablecimiento a {toEmail}");
-                return false;
-            }
-        }
-
-        private async Task<bool> SendEmailAsync(string toEmail, string subject, string body)
-        {
-            using var smtpClient = new SmtpClient(_emailSettings.Host, _emailSettings.Port)
-            {
-                Credentials = new NetworkCredential(
-                    _emailSettings.Username, 
-                    _emailSettings.Password
-                ),
-                EnableSsl = _emailSettings.EnableSsl,
-                DeliveryMethod = SmtpDeliveryMethod.Network,
-                Timeout = 10000 // 10 segundos timeout
-            };
-
-            var mailMessage = new MailMessage
-            {
-                From = new MailAddress(
-                    _emailSettings.FromEmail, 
-                    _emailSettings.FromName
-                ),
-                Subject = subject,
-                Body = body,
-                IsBodyHtml = true,
-                Priority = MailPriority.Normal
-            };
-
-            mailMessage.To.Add(toEmail);
-
-            await smtpClient.SendMailAsync(mailMessage);
-            
-            _logger.LogInformation($"Email enviado a {toEmail} - Asunto: {subject}");
-            return true;
-        }
-
-        private string BuildVerificationEmailBody(string code)
-        {
-            return $@"
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset='UTF-8'>
-                <style>
-                    body {{ font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; }}
-                    .container {{ max-width: 600px; margin: 0 auto; padding: 20px; background: #f9f9f9; border-radius: 10px; }}
-                    .header {{ background: #2e7d32; color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }}
-                    .content {{ padding: 30px; background: white; }}
-                    .code {{ font-size: 36px; font-weight: bold; color: #2e7d32; text-align: center; 
-                            padding: 20px; background: #f0f7f0; border-radius: 8px; margin: 25px 0;
-                            letter-spacing: 8px; }}
-                    .warning {{ background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; }}
-                    .footer {{ text-align: center; margin-top: 30px; color: #666; font-size: 12px; }}
-                </style>
-            </head>
-            <body>
-                <div class='container'>
-                    <div class='header'>
-                        <h1>🌾 Sistema de Gestión Agrícola</h1>
-                    </div>
-                    
-                    <div class='content'>
-                        <h2>Verificación de Email</h2>
-                        <p>Hola,</p>
-                        <p>Para completar tu registro, por favor ingresa el siguiente código:</p>
-                        
-                        <div class='code'>{code}</div>
-                        
-                        <div class='warning'>
-                            <strong>⚠️ Importante:</strong>
-                            <p>Este código expirará en <strong>10 minutos</strong>.</p>
-                            <p>Si no solicitaste este código, ignora este email.</p>
+            var subject = "🔐 Restablecer contraseña - Sistema Agrícola";
+            var body = $@"
+                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;'>
+                    <h1 style='color: #D32F2F;'>Restablecer contraseña</h1>
+                    <p>Usa el siguiente código para restablecer tu contraseña:</p>
+                    <div style='text-align: center; margin: 25px 0;'>
+                        <div style='font-family: monospace; font-size: 24px; font-weight: bold; color: #d32f2f; letter-spacing: 3px;'>
+                            {resetToken}
                         </div>
-                        
-                        <p>Gracias por unirte a nuestro sistema.</p>
-                        
-                        <p>Atentamente,<br>
-                        <strong>Equipo de Sistema de Gestión Agrícola</strong></p>
                     </div>
-                    
-                    <div class='footer'>
-                        <p>© {DateTime.Now.Year} Sistema de Gestión Agrícola. Todos los derechos reservados.</p>
-                        <p>Este es un email automático, por favor no responder.</p>
-                    </div>
+                    <p>Este código expira en <strong>24 horas</strong>.</p>
+                    <br>
+                    <p>Saludos,<br>Equipo Sistema Agrícola</p>
                 </div>
-            </body>
-            </html>";
+            ";
+
+            return await SendEmailAsync(toEmail, subject, body);
         }
 
-        private string BuildWelcomeEmailBody(string userName)
+        // Método adicional: Notificación del sistema
+        public async Task<bool> SendSystemNotificationAsync(string toEmail, string title, string message, string notificationType = "info")
         {
-            return $@"
-            <!DOCTYPE html>
-            <html>
-            <body style='font-family: Arial, sans-serif;'>
-                <h2>¡Bienvenido {userName}!</h2>
-                <p>Tu cuenta ha sido verificada exitosamente.</p>
-                <p>Ahora puedes acceder a todas las funcionalidades del sistema.</p>
-            </body>
-            </html>";
-        }
+            var icon = notificationType switch
+            {
+                "warning" => "⚠️",
+                "error" => "❌",
+                "success" => "✅",
+                _ => "ℹ️"
+            };
 
-        private string BuildPasswordResetEmailBody(string resetToken)
-        {
-            return $@"
-            <!DOCTYPE html>
-            <html>
-            <body style='font-family: Arial, sans-serif;'>
-                <h2>Restablecer Contraseña</h2>
-                <p>Usa el siguiente token para restablecer tu contraseña:</p>
-                <p><strong>{resetToken}</strong></p>
-                <p>Este token expira en 1 hora.</p>
-            </body>
-            </html>";
+            var subject = $"{icon} {title} - Sistema Agrícola";
+            var body = $@"
+                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;'>
+                    <h2>{icon} {title}</h2>
+                    <div style='background-color: #f9f9f9; padding: 20px; border-radius: 5px; margin: 20px 0;'>
+                        {message}
+                    </div>
+                    <p>Fecha: {DateTime.Now:dd/MM/yyyy HH:mm}</p>
+                </div>
+            ";
+
+            return await SendEmailAsync(toEmail, subject, body);
         }
     }
 }

@@ -1,11 +1,9 @@
-// 📁 Controllers/AuthController.cs
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaGestionAgricola.Data;
 using SistemaGestionAgricola.Models.Entities;
 using SistemaGestionAgricola.Models.DTOs;
 using SistemaGestionAgricola.Services;
-using SistemaGestionAgricola.Models.Configurations;
 using Microsoft.Extensions.Logging;
 
 namespace SistemaGestionAgricola.Controllers
@@ -43,6 +41,7 @@ namespace SistemaGestionAgricola.Controllers
             _logger = logger;
         }
 
+        // ==================== LOGIN ====================
         [HttpPost("login")]
         public async Task<ActionResult<AuthResponseDTO>> Login(LoginDTO loginDTO)
         {
@@ -78,7 +77,7 @@ namespace SistemaGestionAgricola.Controllers
                         message = "Credenciales inválidas. Verifica tu email y contraseña." 
                     });
 
-                // ✅ NUEVA VALIDACIÓN: Verificar si el email está verificado
+                // ✅ VERIFICAR SI EL EMAIL ESTÁ VERIFICADO
                 if (!usuario.IsEmailVerified)
                 {
                     // Opcional: Reenviar código automáticamente
@@ -107,10 +106,9 @@ namespace SistemaGestionAgricola.Controllers
                     }
                 }
 
-                // Verificar contraseña usando PasswordService
+                // Verificar contraseña
                 if (!_passwordService.VerifyPassword(loginDTO.Password, usuario.PasswordHash))
                 {
-                    // Registrar intento fallido (opcional)
                     _logger.LogWarning($"Intento de login fallido para {loginDTO.Email}");
                     
                     return Unauthorized(new { 
@@ -135,11 +133,12 @@ namespace SistemaGestionAgricola.Controllers
                         Apellidos = usuario.Apellidos ?? string.Empty,
                         Telefono = usuario.Telefono,
                         CreatedAt = usuario.CreatedAt,
-                        UpdatedAt = usuario.UpdatedAt
+                        UpdatedAt = usuario.UpdatedAt,
+                        IsEmailVerified = usuario.IsEmailVerified
                     }
                 };
 
-                _logger.LogInformation($"Login exitoso para usuario: {usuario.Email}");
+                _logger.LogInformation($"✅ Login exitoso para usuario: {usuario.Email}");
                 
                 return Ok(new {
                     success = true,
@@ -157,6 +156,7 @@ namespace SistemaGestionAgricola.Controllers
             }
         }
 
+        // ==================== REGISTRO ====================
         [HttpPost("register")]
         public async Task<ActionResult<AuthResponseDTO>> Register(RegisterDTO registerDTO)
         {
@@ -213,7 +213,7 @@ namespace SistemaGestionAgricola.Controllers
                 _context.Usuarios.Add(usuario);
                 await _context.SaveChangesAsync();
 
-                // ✅ NUEVO: Enviar código de verificación por email
+                // ✅ ENVIAR CÓDIGO DE VERIFICACIÓN POR EMAIL
                 try
                 {
                     var code = await _emailVerificationService.GenerateAndSendVerificationCodeAsync(
@@ -221,13 +221,25 @@ namespace SistemaGestionAgricola.Controllers
                         "register"
                     );
 
-                    _logger.LogInformation($"Código de verificación enviado a {usuario.Email}");
+                    if (string.IsNullOrEmpty(code))
+                    {
+                        // Eliminar usuario si no se pudo enviar el email
+                        _context.Usuarios.Remove(usuario);
+                        await _context.SaveChangesAsync();
+                        
+                        return StatusCode(500, new { 
+                            success = false, 
+                            message = "Error enviando código de verificación. Por favor intenta nuevamente." 
+                        });
+                    }
+
+                    _logger.LogInformation($"✅ Código de verificación enviado a {usuario.Email}");
                 }
                 catch (Exception emailEx)
                 {
                     _logger.LogError(emailEx, $"Error enviando email de verificación a {usuario.Email}");
                     
-                    // Opcional: Eliminar usuario si no se pudo enviar el email
+                    // Eliminar usuario si no se pudo enviar el email
                     _context.Usuarios.Remove(usuario);
                     await _context.SaveChangesAsync();
                     
@@ -238,8 +250,6 @@ namespace SistemaGestionAgricola.Controllers
                 }
 
                 // NO generar token aún - el usuario necesita verificar email primero
-                // En lugar de token, devolver mensaje de que debe verificar email
-
                 return Ok(new {
                     success = true,
                     message = "✅ Usuario registrado exitosamente. Por favor verifica tu email con el código enviado.",
@@ -260,6 +270,7 @@ namespace SistemaGestionAgricola.Controllers
             }
         }
 
+        // ==================== VERIFICAR EMAIL ====================
         [HttpPost("verify-email")]
         public async Task<IActionResult> VerifyEmail(VerifyEmailRequest request)
         {
@@ -313,7 +324,7 @@ namespace SistemaGestionAgricola.Controllers
                 try
                 {
                     await _emailService.SendWelcomeEmailAsync(usuario.Email, usuario.Nombre);
-                    _logger.LogInformation($"Email de bienvenida enviado a {usuario.Email}");
+                    _logger.LogInformation($"✅ Email de bienvenida enviado a {usuario.Email}");
                 }
                 catch (Exception emailEx)
                 {
@@ -337,11 +348,12 @@ namespace SistemaGestionAgricola.Controllers
                         Apellidos = usuario.Apellidos ?? string.Empty,
                         Telefono = usuario.Telefono,
                         CreatedAt = usuario.CreatedAt,
-                        UpdatedAt = usuario.UpdatedAt
+                        UpdatedAt = usuario.UpdatedAt,
+                        IsEmailVerified = usuario.IsEmailVerified
                     }
                 };
 
-                _logger.LogInformation($"Email verificado exitosamente para {usuario.Email}");
+                _logger.LogInformation($"✅ Email verificado exitosamente para {usuario.Email}");
 
                 return Ok(new {
                     success = true,
@@ -359,6 +371,7 @@ namespace SistemaGestionAgricola.Controllers
             }
         }
 
+        // ==================== REENVIAR VERIFICACIÓN ====================
         [HttpPost("resend-verification")]
         public async Task<IActionResult> ResendVerification(ResendVerificationRequest request)
         {
@@ -410,7 +423,7 @@ namespace SistemaGestionAgricola.Controllers
                     });
                 }
 
-                _logger.LogInformation($"Código reenviado a {request.Email}");
+                _logger.LogInformation($"✅ Código reenviado a {request.Email}");
 
                 return Ok(new {
                     success = true,
@@ -428,6 +441,7 @@ namespace SistemaGestionAgricola.Controllers
             }
         }
 
+        // ==================== OLVIDÉ CONTRASEÑA ====================
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordDTO forgotPasswordDTO)
         {
@@ -489,7 +503,7 @@ namespace SistemaGestionAgricola.Controllers
                     });
                 }
 
-                _logger.LogInformation($"Email de restablecimiento enviado a {usuario.Email}. Token: {resetToken.Substring(0, 10)}...");
+                _logger.LogInformation($"✅ Email de restablecimiento enviado a {usuario.Email}");
 
                 return Ok(new {
                     success = true,
@@ -506,6 +520,7 @@ namespace SistemaGestionAgricola.Controllers
             }
         }
 
+        // ==================== RESTABLECER CONTRASEÑA ====================
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword(ResetPasswordDTO resetPasswordDTO)
         {
@@ -538,7 +553,7 @@ namespace SistemaGestionAgricola.Controllers
                     });
 
                 // 2. HASHEAR LA NUEVA CONTRASEÑA
-                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(resetPasswordDTO.NewPassword);
+                string hashedPassword = _passwordService.HashPassword(resetPasswordDTO.NewPassword);
 
                 // 3. ACTUALIZAR CONTRASEÑA Y LIMPIAR TOKEN
                 usuario.PasswordHash = hashedPassword;
@@ -550,7 +565,7 @@ namespace SistemaGestionAgricola.Controllers
                 _context.Usuarios.Update(usuario);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation($"Contraseña restablecida para usuario ID: {usuario.Id}");
+                _logger.LogInformation($"✅ Contraseña restablecida para usuario ID: {usuario.Id}");
 
                 return Ok(new {
                     success = true,
@@ -567,6 +582,7 @@ namespace SistemaGestionAgricola.Controllers
             }
         }
 
+        // ==================== VERIFICAR EMAIL DISPONIBLE ====================
         [HttpGet("check-email/{email}")]
         public async Task<IActionResult> CheckEmailAvailability(string email)
         {
@@ -603,6 +619,7 @@ namespace SistemaGestionAgricola.Controllers
             }
         }
 
+        // ==================== REQUISITOS DE CONTRASEÑA ====================
         [HttpGet("password-requirements")]
         public IActionResult GetPasswordRequirements()
         {
@@ -625,10 +642,11 @@ namespace SistemaGestionAgricola.Controllers
             }
         }
 
-        // Métodos auxiliares
+        // ==================== MÉTODOS AUXILIARES ====================
         private bool IsValidRol(string rol)
         {
-            return rol == "admin" || rol == "agricultor" || rol == "supervisor";
+            var rolesPermitidos = new[] { "admin", "agricultor", "supervisor" };
+            return rolesPermitidos.Contains(rol?.ToLower());
         }
 
         private bool IsValidEmail(string email)

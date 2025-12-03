@@ -10,6 +10,8 @@ namespace SistemaGestionAgricola.Models.DTOs
         public string? Telefono { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public bool IsEmailVerified { get; set; }
+
     }
 
     public class CreateUsuarioDTO

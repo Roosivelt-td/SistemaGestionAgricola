@@ -6,8 +6,7 @@ using System.Text;
 using SistemaGestionAgricola.Services;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
-using System.IdentityModel.Tokens.Jwt; 
-using SistemaGestionAgricola.Models.Configurations; 
+using System.IdentityModel.Tokens.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -81,8 +80,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Servicios de aplicación
 builder.Services.AddScoped<IJwtService, JwtService>();
-// Configurar Email Settings
-builder.Services.Configure<EmailSettings>(
+// Agrega MemoryCache
+builder.Services.AddMemoryCache();
+
+// ⭐⭐⭐⭐ CONFIGURACIÓN CRÍTICA DE EMAIL ⭐⭐⭐⭐
+// Esto debe ser EmailConfiguration (NO EmailSettings)
+builder.Services.Configure<EmailConfiguration>(  // ← CAMBIA A EmailConfiguration
     builder.Configuration.GetSection("EmailSettings"));
 
 // Servicios de Email
@@ -110,6 +113,7 @@ builder.Services.AddLogging(logging =>
     logging.AddDebug();
     logging.SetMinimumLevel(LogLevel.Information);
 });
+
 // Add Swagger CON AUTORIZACIÓN JWT
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -126,12 +130,11 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
     
-    // ⭐⭐⭐⭐ CONFIGURACIÓN DE AUTORIZACIÓN JWT EN SWAGGER ⭐⭐⭐⭐
-    // Esto agrega el botón "Authorize" en Swagger UI
+    // CONFIGURACIÓN DE AUTORIZACIÓN JWT EN SWAGGER
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
-        Type = SecuritySchemeType.Http, // ← CAMBIAR de ApiKey a Http
+        Type = SecuritySchemeType.Http,
         Scheme = "Bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
@@ -166,9 +169,9 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     // Servir archivos estáticos (para el JS personalizado)
-	app.UseStaticFiles(); 
+    app.UseStaticFiles(); 
 
-	app.UseSwagger();
+    app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Sistema Gestión Agrícola API v1");
@@ -180,7 +183,7 @@ if (app.Environment.IsDevelopment())
         c.DefaultModelsExpandDepth(-1); // Oculta el panel de schemas por defecto
         c.EnableFilter(); // Habilita filtro de búsqueda
         c.ShowExtensions();
-		// ✅ AGREGAR ESTO para JavaScript personalizado
+        // AGREGAR ESTO para JavaScript personalizado
         c.InjectJavascript("/swagger/custom.js");
     });
     
@@ -202,8 +205,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
-app.UseAuthentication(); // ⬅️ IMPORTANTE: Primero Authentication
-app.UseAuthorization();   // ⬅️ IMPORTANTE: Luego Authorization
+app.UseAuthentication(); // IMPORTANTE: Primero Authentication
+app.UseAuthorization();   // IMPORTANTE: Luego Authorization
 app.MapControllers();
 
 // Middleware para logging de requests (opcional)

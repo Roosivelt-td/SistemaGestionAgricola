@@ -23,6 +23,10 @@ namespace SistemaGestionAgricola.Models.DTOs
         [MinLength(6, ErrorMessage = "La contraseña debe tener al menos 6 caracteres")]
         public string Password { get; set; } = string.Empty;
 
+        [Required(ErrorMessage = "La confirmación de contraseña es requerida")]
+        [Compare("Password", ErrorMessage = "Las contraseñas no coinciden")]
+        public string ConfirmPassword { get; set; } = string.Empty;
+
         [Required(ErrorMessage = "El rol es requerido")]
         public string Rol { get; set; } = "agricultor";
 

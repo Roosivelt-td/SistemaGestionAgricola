@@ -1,68 +1,65 @@
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using SistemaGestionAgricola.Data;
-using SistemaGestionAgricola.Models.Entities;
+using System;
+using System.Threading.Tasks;
 
 namespace SistemaGestionAgricola.Services
 {
     public class EmailVerificationService : IEmailVerificationService
     {
-        private readonly AppDbContext _context;
+        private readonly IMemoryCache _cache;
         private readonly IEmailService _emailService;
         private readonly ILogger<EmailVerificationService> _logger;
-        private readonly Random _random;
+        
+        private const int CODE_LENGTH = 6;
+        private const int EXPIRATION_MINUTES = 10;
 
         public EmailVerificationService(
-            AppDbContext context, 
+            IMemoryCache cache,
             IEmailService emailService,
             ILogger<EmailVerificationService> logger)
         {
-            _context = context;
+            _cache = cache;
             _emailService = emailService;
             _logger = logger;
-            _random = new Random();
         }
 
-        public async Task<string> GenerateAndSendVerificationCodeAsync(string email, string verificationType = "register")
+        public async Task<string> GenerateAndSendVerificationCodeAsync(string email, string purpose = "register")
         {
             try
             {
-                // Limpiar verificaciones anteriores
-                await CleanupOldVerificationsAsync(email);
-
+                _logger.LogInformation($"Generando código de verificación para {email}");
+                
                 // Generar código de 6 dígitos
-                var code = _random.Next(100000, 999999).ToString();
-
-                // Crear registro
-                var verification = new EmailVerification
-                {
-                    Email = email,
-                    Code = code,
-                    CreatedAt = DateTime.UtcNow,
-                    ExpiresAt = DateTime.UtcNow.AddMinutes(10),
-                    VerificationType = verificationType,
-                    IsUsed = false,
-                    Attempts = 0
-                };
-
-                _context.EmailVerifications.Add(verification);
-                await _context.SaveChangesAsync();
-
-                // Enviar email
+                var random = new Random();
+                var code = random.Next(100000, 999999).ToString();
+                
+                // Guardar en cache con expiración
+                var cacheKey = $"VerifyCode:{purpose}:{email.ToLower()}";
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetAbsoluteExpiration(TimeSpan.FromMinutes(EXPIRATION_MINUTES));
+                
+                _cache.Set(cacheKey, code, cacheEntryOptions);
+                
+                _logger.LogInformation($"Código {code} generado para {email} (expira en {EXPIRATION_MINUTES} min)");
+                
+                // Enviar email con el código usando IEmailService
                 var emailSent = await _emailService.SendVerificationCodeAsync(email, code);
-
+                
                 if (!emailSent)
                 {
-                    throw new Exception("No se pudo enviar el email");
+                    _logger.LogError($"No se pudo enviar email de verificación a {email}");
+                    // No lanzar excepción, solo devolver null
+                    return null;
                 }
-
-                _logger.LogInformation($"Código de verificación generado para {email}: {code}");
+                
                 return code;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error generando código de verificación para {email}");
-                throw;
+                _logger.LogError(ex, $"Error generando código para {email}");
+                return null;
             }
         }
 
@@ -70,43 +67,41 @@ namespace SistemaGestionAgricola.Services
         {
             try
             {
-                // Buscar código válido
-                var verification = await _context.EmailVerifications
-                    .Where(v => v.Email == email && 
-                           v.Code == code && 
-                           !v.IsUsed && 
-                           v.ExpiresAt > DateTime.UtcNow)
-                    .FirstOrDefaultAsync();
-
-                if (verification == null)
+                if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(code))
                 {
-                    // Incrementar intentos fallidos si existe
-                    var existingVerification = await _context.EmailVerifications
-                        .Where(v => v.Email == email && 
-                               !v.IsUsed && 
-                               v.ExpiresAt > DateTime.UtcNow)
-                        .FirstOrDefaultAsync();
-
-                    if (existingVerification != null)
-                    {
-                        existingVerification.Attempts++;
-                        if (existingVerification.Attempts >= 3)
-                        {
-                            existingVerification.IsUsed = true;
-                        }
-                        await _context.SaveChangesAsync();
-                    }
-
+                    _logger.LogWarning($"Email o código vacío para verificación");
                     return false;
                 }
 
-                // Marcar como usado
-                verification.IsUsed = true;
-                verification.ExpiresAt = DateTime.UtcNow; // Expirar inmediatamente
-                await _context.SaveChangesAsync();
+                // Intentar verificar para registro
+                var registerCacheKey = $"VerifyCode:register:{email.ToLower()}";
+                if (_cache.TryGetValue(registerCacheKey, out string cachedCode) && cachedCode == code)
+                {
+                    _cache.Remove(registerCacheKey);
+                    _logger.LogInformation($"✅ Código verificado para registro: {email}");
+                    return true;
+                }
 
-                _logger.LogInformation($"Código verificado correctamente para {email}");
-                return true;
+                // Intentar verificar para reset de contraseña
+                var resetCacheKey = $"VerifyCode:reset:{email.ToLower()}";
+                if (_cache.TryGetValue(resetCacheKey, out string resetCachedCode) && resetCachedCode == code)
+                {
+                    _cache.Remove(resetCacheKey);
+                    _logger.LogInformation($"✅ Código verificado para reset: {email}");
+                    return true;
+                }
+
+                // Código general (fallback)
+                var generalCacheKey = $"VerifyCode:general:{email.ToLower()}";
+                if (_cache.TryGetValue(generalCacheKey, out string generalCachedCode) && generalCachedCode == code)
+                {
+                    _cache.Remove(generalCacheKey);
+                    _logger.LogInformation($"✅ Código general verificado: {email}");
+                    return true;
+                }
+
+                _logger.LogWarning($"❌ Código inválido o expirado para {email}");
+                return false;
             }
             catch (Exception ex)
             {
@@ -119,62 +114,30 @@ namespace SistemaGestionAgricola.Services
         {
             try
             {
-                // Invalidar códigos anteriores
-                await CleanupOldVerificationsAsync(email);
-
-                // Generar y enviar nuevo código
-                var code = await GenerateAndSendVerificationCodeAsync(email, "resend");
+                _logger.LogInformation($"Reenviando código de verificación a {email}");
                 
-                return !string.IsNullOrEmpty(code);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error reenviando código para {email}");
-                return false;
-            }
-        }
-
-        public async Task CleanupExpiredVerificationsAsync()
-        {
-            try
-            {
-                // Eliminar verificaciones expiradas (más de 24 horas)
-                var cutoff = DateTime.UtcNow.AddHours(-24);
-                
-                var expired = await _context.EmailVerifications
-                    .Where(v => v.ExpiresAt < cutoff)
-                    .ToListAsync();
-
-                _context.EmailVerifications.RemoveRange(expired);
-                await _context.SaveChangesAsync();
-
-                _logger.LogInformation($"Limpieza de verificaciones expiradas: {expired.Count} eliminadas");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error en limpieza de verificaciones expiradas");
-            }
-        }
-
-        private async Task CleanupOldVerificationsAsync(string email)
-        {
-            try
-            {
-                // Marcar como usadas todas las verificaciones anteriores para este email
-                var oldVerifications = await _context.EmailVerifications
-                    .Where(v => v.Email == email && !v.IsUsed)
-                    .ToListAsync();
-
-                foreach (var verification in oldVerifications)
+                // Intentar obtener código existente primero
+                var cacheKey = $"VerifyCode:register:{email.ToLower()}";
+                if (_cache.TryGetValue(cacheKey, out string existingCode))
                 {
-                    verification.IsUsed = true;
+                    // Reenviar el mismo código
+                    var emailSent = await _emailService.SendVerificationCodeAsync(email, existingCode);
+                    
+                    if (emailSent)
+                    {
+                        _logger.LogInformation($"✅ Código reenviado a {email}");
+                        return true;
+                    }
                 }
-
-                await _context.SaveChangesAsync();
+                
+                // Si no hay código existente o falló, generar uno nuevo
+                var newCode = await GenerateAndSendVerificationCodeAsync(email, "register");
+                return !string.IsNullOrEmpty(newCode);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error limpiando verificaciones antiguas para {email}");
+                _logger.LogError(ex, $"Error reenviando código a {email}");
+                return false;
             }
         }
     }
