@@ -36,12 +36,18 @@ namespace SistemaGestionAgricola.Models.Entities
         public virtual Agricultor? Agricultor { get; set; }
         public virtual ICollection<NotificacionAutomatica> NotificacionesAutomaticas { get; set; } = new List<NotificacionAutomatica>();
         public virtual ICollection<Notificacion> Notificaciones { get; set; } = new List<Notificacion>();
+        public bool IsEmailVerified { get; set; } = false;
         
+        // Password actualizacion
+        public string? ResetPasswordToken { get; set; }
+        public DateTime? ResetPasswordTokenExpiry { get; set; }
+        // final de password 
         public Usuario()
         {
             // Establecer valores por defecto en el constructor
             CreatedAt = DateTime.UtcNow;
             UpdatedAt = DateTime.UtcNow;
+            IsEmailVerified = false; 
         }
     }
 }

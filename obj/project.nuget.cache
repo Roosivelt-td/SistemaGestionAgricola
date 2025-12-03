@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "gMm5qpTIdOU=",
+  "dgSpecHash": "SEbiZPKCTd0=",
   "success": true,
   "projectFilePath": "/home/roosivelt/MEGA/ELP/Ing. sistemas/S-6/Servios-web/Final/SistemaGestionAgricola/SistemaGestionAgricola.csproj",
   "expectedPackageFiles": [
@@ -31,11 +31,11 @@
     "/home/roosivelt/.nuget/packages/microsoft.extensions.configuration/10.0.0/microsoft.extensions.configuration.10.0.0.nupkg.sha512",
     "/home/roosivelt/.nuget/packages/microsoft.extensions.configuration.abstractions/10.0.0/microsoft.extensions.configuration.abstractions.10.0.0.nupkg.sha512",
     "/home/roosivelt/.nuget/packages/microsoft.extensions.dependencyinjection/9.0.10/microsoft.extensions.dependencyinjection.9.0.10.nupkg.sha512",
-    "/home/roosivelt/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/9.0.10/microsoft.extensions.dependencyinjection.abstractions.9.0.10.nupkg.sha512",
+    "/home/roosivelt/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/10.0.0/microsoft.extensions.dependencyinjection.abstractions.10.0.0.nupkg.sha512",
     "/home/roosivelt/.nuget/packages/microsoft.extensions.dependencymodel/9.0.10/microsoft.extensions.dependencymodel.9.0.10.nupkg.sha512",
     "/home/roosivelt/.nuget/packages/microsoft.extensions.logging/9.0.10/microsoft.extensions.logging.9.0.10.nupkg.sha512",
     "/home/roosivelt/.nuget/packages/microsoft.extensions.logging.abstractions/9.0.10/microsoft.extensions.logging.abstractions.9.0.10.nupkg.sha512",
-    "/home/roosivelt/.nuget/packages/microsoft.extensions.options/9.0.10/microsoft.extensions.options.9.0.10.nupkg.sha512",
+    "/home/roosivelt/.nuget/packages/microsoft.extensions.options/10.0.0/microsoft.extensions.options.10.0.0.nupkg.sha512",
     "/home/roosivelt/.nuget/packages/microsoft.extensions.primitives/10.0.0/microsoft.extensions.primitives.10.0.0.nupkg.sha512",
     "/home/roosivelt/.nuget/packages/microsoft.identitymodel.abstractions/8.14.0/microsoft.identitymodel.abstractions.8.14.0.nupkg.sha512",
     "/home/roosivelt/.nuget/packages/microsoft.identitymodel.jsonwebtokens/8.14.0/microsoft.identitymodel.jsonwebtokens.8.14.0.nupkg.sha512",

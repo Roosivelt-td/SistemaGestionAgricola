@@ -7,6 +7,7 @@ using SistemaGestionAgricola.Services;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
 using System.IdentityModel.Tokens.Jwt; 
+using SistemaGestionAgricola.Models.Configurations; 
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,7 +31,7 @@ builder.Services.AddCors(options =>
 });
 
 // Configurar JWT
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "mi_clave_secreta_muy_larga_para_jwt_2025";
+var jwtKey = builder.Configuration["Jwt:Key"] ?? "EstaEsUnaClaveSecretaSuperLargaDe64CaracteresParaJWTEnSistemaAgricola2025!@#";
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "SistemaGestionAgricola";
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "SistemaGestionAgricolaClient";
 
@@ -80,9 +81,35 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Servicios de aplicación
 builder.Services.AddScoped<IJwtService, JwtService>();
+// Configurar Email Settings
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings"));
+
+// Servicios de Email
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IEmailVerificationService, EmailVerificationService>();
+
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<IPasswordValidator, PasswordValidator>(); // Contraseña Segura
 
+// Configurar CORS si necesitas frontend
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy => policy
+            .WithOrigins("http://localhost:3000", "http://localhost:5173") // Tu frontend
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
+});
+
+// Agregar logging mejorado para emails
+builder.Services.AddLogging(logging =>
+{
+    logging.AddConsole();
+    logging.AddDebug();
+    logging.SetMinimumLevel(LogLevel.Information);
+});
 // Add Swagger CON AUTORIZACIÓN JWT
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>

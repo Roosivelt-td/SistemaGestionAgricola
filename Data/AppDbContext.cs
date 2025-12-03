@@ -27,6 +27,7 @@ namespace SistemaGestionAgricola.Data
         public DbSet<Venta> Ventas { get; set; }
         public DbSet<NotificacionAutomatica> NotificacionesAutomaticas { get; set; }
         public DbSet<Notificacion> Notificaciones { get; set; }
+        public DbSet<EmailVerification> EmailVerifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -50,6 +51,7 @@ namespace SistemaGestionAgricola.Data
             modelBuilder.ApplyConfiguration(new VentaConfiguration());
             modelBuilder.ApplyConfiguration(new NotificacionAutomaticaConfiguration());
             modelBuilder.ApplyConfiguration(new NotificacionConfiguration());
+            modelBuilder.ApplyConfiguration(new EmailVerificationConfiguration());
         }
     }
 }
