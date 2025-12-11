@@ -1,34 +1,48 @@
-```gitignore
+```
 # Build artifacts
 bin/
 obj/
-*.exe
 *.dll
+*.exe
 *.pdb
-*.userprefs
+*.so
+*.dylib
+*.jar
+*.war
+*.class
+*.o
+*.obj
+*.out
 
 # Dependencies
 packages/
 node_modules/
-.nuget/
+vendor/
 
-# Logs
-*.log
-
-# Environment
-.env
-.env.local
-*.env.*
-
-# Editors
+# IDE files
+.vs/
 .vscode/
 .idea/
-*.user
 *.suo
+*.user
 *.userosscache
 *.sln.docstates
 
-# OS
+# OS generated files
 .DS_Store
 Thumbs.db
+ehthumbs.db
+Icon?
+desktop.ini
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# User-specific files
+.vscode/settings.json
 ```
