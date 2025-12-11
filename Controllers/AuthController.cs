@@ -156,12 +156,217 @@ namespace SistemaGestionAgricola.Controllers
             }
         }
 
-        // ==================== REGISTRO ====================
+        // ==================== REGISTRO - PRIMERO EMAIL ====================
+        [HttpPost("register/email")]
+        public async Task<IActionResult> RegisterEmail([FromBody] RegisterEmailDTO registerEmailDTO)
+        {
+            try
+            {
+                // Validar campo requerido
+                if (string.IsNullOrWhiteSpace(registerEmailDTO.Email))
+                    return BadRequest(new { 
+                        success = false, 
+                        message = "El email es requerido" 
+                    });
+                
+                // Validar formato de email
+                if (!IsValidEmail(registerEmailDTO.Email))
+                    return BadRequest(new { 
+                        success = false, 
+                        message = "El formato del email no es válido" 
+                    });
+
+                // Validar que el email no exista
+                if (await _context.Usuarios.AnyAsync(u => u.Email == registerEmailDTO.Email))
+                    return BadRequest(new { 
+                        success = false, 
+                        message = "El email ya está registrado" 
+                    });
+
+                // Enviar código de verificación sin crear usuario aún
+                try
+                {
+                    var code = await _emailVerificationService.GenerateAndSendVerificationCodeAsync(
+                        registerEmailDTO.Email, 
+                        "register"
+                    );
+
+                    if (string.IsNullOrEmpty(code))
+                    {
+                        return StatusCode(500, new { 
+                            success = false, 
+                            message = "Error enviando código de verificación. Por favor intenta nuevamente." 
+                        });
+                    }
+
+                    _logger.LogInformation($"✅ Código de verificación enviado a {registerEmailDTO.Email}");
+                }
+                catch (Exception emailEx)
+                {
+                    _logger.LogError(emailEx, $"Error enviando email de verificación a {registerEmailDTO.Email}");
+                    
+                    return StatusCode(500, new { 
+                        success = false, 
+                        message = "Error enviando código de verificación. Por favor intenta nuevamente." 
+                    });
+                }
+
+                return Ok(new {
+                    success = true,
+                    message = "✅ Código de verificación enviado. Por favor revisa tu email.",
+                    email = registerEmailDTO.Email,
+                    canCompleteRegistration = true,
+                    expiresInMinutes = 10
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error en registro de email: {registerEmailDTO.Email}");
+                return StatusCode(500, new { 
+                    success = false, 
+                    message = $"Error interno del servidor: {ex.Message}" 
+                });
+            }
+        }
+
+        // ==================== COMPLETAR REGISTRO ====================
+        [HttpPost("register/complete")]
+        public async Task<ActionResult<AuthResponseDTO>> CompleteRegister([FromBody] CompleteRegisterDTO completeRegisterDTO)
+        {
+            try
+            {
+                // Validar campos requeridos
+                if (string.IsNullOrWhiteSpace(completeRegisterDTO.Email))
+                    return BadRequest(new { 
+                        success = false, 
+                        message = "El email es requerido" 
+                    });
+
+                if (string.IsNullOrWhiteSpace(completeRegisterDTO.Code))
+                    return BadRequest(new { 
+                        success = false, 
+                        message = "El código de verificación es requerido" 
+                    });
+
+                if (string.IsNullOrWhiteSpace(completeRegisterDTO.Password))
+                    return BadRequest(new { 
+                        success = false, 
+                        message = "La contraseña es requerida" 
+                    });
+
+                if (string.IsNullOrWhiteSpace(completeRegisterDTO.Nombre))
+                    return BadRequest(new { 
+                        success = false, 
+                        message = "El nombre es requerido" 
+                    });
+
+                // Validar formato de email
+                if (!IsValidEmail(completeRegisterDTO.Email))
+                    return BadRequest(new { 
+                        success = false, 
+                        message = "El formato del email no es válido" 
+                    });
+
+                // Validar rol
+                if (!IsValidRol(completeRegisterDTO.Rol))
+                    return BadRequest(new { 
+                        success = false, 
+                        message = $"Rol '{completeRegisterDTO.Rol}' no válido. Roles permitidos: admin, agricultor, supervisor" 
+                    });
+
+                // Validar contraseña segura
+                var passwordValidation = _passwordValidator.ValidatePassword(completeRegisterDTO.Password);
+                if (!passwordValidation.IsValid)
+                    return BadRequest(new { 
+                        success = false, 
+                        message = passwordValidation.Message 
+                    });
+
+                // Validar que el código sea correcto
+                var isValidCode = await _emailVerificationService.VerifyCodeAsync(
+                    completeRegisterDTO.Email, 
+                    completeRegisterDTO.Code
+                );
+
+                if (!isValidCode)
+                {
+                    return BadRequest(new { 
+                        success = false, 
+                        message = "Código de verificación inválido o expirado" 
+                    });
+                }
+
+                // Validar que el email no exista (por si acaso)
+                if (await _context.Usuarios.AnyAsync(u => u.Email == completeRegisterDTO.Email))
+                    return BadRequest(new { 
+                        success = false, 
+                        message = "El email ya está registrado" 
+                    });
+
+                // Crear usuario con datos completos
+                var usuario = new Usuario
+                {
+                    Email = completeRegisterDTO.Email.Trim(),
+                    PasswordHash = _passwordService.HashPassword(completeRegisterDTO.Password),
+                    Rol = completeRegisterDTO.Rol.Trim(),
+                    Nombre = completeRegisterDTO.Nombre.Trim(),
+                    Apellidos = completeRegisterDTO.Apellidos?.Trim() ?? string.Empty,
+                    Telefono = completeRegisterDTO.Telefono?.Trim(),
+                    IsEmailVerified = true // ← AHORA SÍ: Email verificado
+                };
+
+                _context.Usuarios.Add(usuario);
+                await _context.SaveChangesAsync();
+
+                // Generar token ya que el email está verificado
+                var token = _jwtService.GenerateToken(usuario);
+
+                var response = new AuthResponseDTO
+                {
+                    Token = token,
+                    Expiration = DateTime.UtcNow.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpireMinutes"] ?? "60")),
+                    Usuario = new UsuarioDTO
+                    {
+                        Id = usuario.Id,
+                        Email = usuario.Email,
+                        Rol = usuario.Rol,
+                        Nombre = usuario.Nombre,
+                        Apellidos = usuario.Apellidos ?? string.Empty,
+                        Telefono = usuario.Telefono,
+                        CreatedAt = usuario.CreatedAt,
+                        UpdatedAt = usuario.UpdatedAt,
+                        IsEmailVerified = usuario.IsEmailVerified
+                    }
+                };
+
+                _logger.LogInformation($"✅ Registro completo exitoso para {usuario.Email}");
+
+                return Ok(new {
+                    success = true,
+                    message = "✅ Registro completado exitosamente",
+                    data = response
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error en registro completo: {completeRegisterDTO.Email}");
+                return StatusCode(500, new { 
+                    success = false, 
+                    message = $"Error interno del servidor: {ex.Message}" 
+                });
+            }
+        }
+
+        // ==================== REGISTRO TRADICIONAL (DEPRECATED) ====================
         [HttpPost("register")]
+        [Obsolete("Use register/email and register/complete endpoints instead")]
         public async Task<ActionResult<AuthResponseDTO>> Register(RegisterDTO registerDTO)
         {
             try
             {
+                // Advertencia de deprecación
+                _logger.LogWarning($"Uso de endpoint obsoleto: register para {registerDTO.Email}. Use register/email y register/complete en su lugar.");
+                
                 // Validar que el email no exista
                 if (await _context.Usuarios.AnyAsync(u => u.Email == registerDTO.Email))
                     return BadRequest(new { 
@@ -252,7 +457,7 @@ namespace SistemaGestionAgricola.Controllers
                 // NO generar token aún - el usuario necesita verificar email primero
                 return Ok(new {
                     success = true,
-                    message = "✅ Usuario registrado exitosamente. Por favor verifica tu email con el código enviado.",
+                    message = "✅ Usuario registrado exitosamente. Por favor verifica tu email con el código enviado. (Este endpoint será deprecado, use register/email y register/complete)",
                     requiresEmailVerification = true,
                     userId = usuario.Id,
                     email = usuario.Email,

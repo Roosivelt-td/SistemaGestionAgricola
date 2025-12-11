@@ -1,33 +1,19 @@
-```
-# Compiled and build artifacts
-*.pyc
-__pycache__/
-*.o
-*.obj
+```gitignore
+# Build artifacts
+bin/
+obj/
 *.exe
 *.dll
-*.so
-*.a
-*.out
+*.pdb
+*.userprefs
 
 # Dependencies
-.venv/
-venv/
+packages/
 node_modules/
-target/
-.gradle/
-.mypy_cache/
-.pytest_cache/
-.npm/
-.yarn/
+.nuget/
 
-# Logs and temp files
+# Logs
 *.log
-*.tmp
-*.swp
-*.swo
-*.bak
-*.~*
 
 # Environment
 .env
@@ -37,22 +23,12 @@ target/
 # Editors
 .vscode/
 .idea/
-*.swp
-*.swo
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
 
 # OS
 .DS_Store
 Thumbs.db
-
-# Coverage
-coverage/
-htmlcov/
-.coverage
-
-# Build outputs
-dist/
-build/
-bin/
-obj/
-out/
 ```
