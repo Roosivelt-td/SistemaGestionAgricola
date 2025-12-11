@@ -1,48 +1,36 @@
 ```
-# Build artifacts
-bin/
-obj/
-*.dll
-*.exe
-*.pdb
-*.so
-*.dylib
-*.jar
-*.war
-*.class
+# Compiled and build artifacts
 *.o
 *.obj
+*.exe
+*.dll
+*.so
+*.a
 *.out
 
 # Dependencies
-packages/
-node_modules/
-vendor/
+bin/
+obj/
+Debug/
+Release/
 
-# IDE files
-.vs/
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+
+# Environment
+.env
+.env.local
+*.env.*
+
+# Editors
 .vscode/
 .idea/
-*.suo
+*.userprefs
 *.user
-*.userosscache
-*.sln.docstates
 
 # OS generated files
 .DS_Store
 Thumbs.db
-ehthumbs.db
-Icon?
-desktop.ini
-
-# Log files
-*.log
-
-# Temporary files
-*.tmp
-*.temp
-*.bak
-
-# User-specific files
-.vscode/settings.json
 ```
