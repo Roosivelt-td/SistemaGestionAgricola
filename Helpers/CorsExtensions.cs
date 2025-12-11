@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Cors;
 
-namespace SistemaGestionAgricola.Extensions
+namespace SistemaGestionAgricola.Helpers
 {
     public static class CorsExtensions
     {

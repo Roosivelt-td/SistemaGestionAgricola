@@ -1,6 +1,6 @@
 using Microsoft.OpenApi.Models;
 
-namespace SistemaGestionAgricola.Extensions
+namespace SistemaGestionAgricola.Helpers
 {
     public static class SwaggerExtensions
     {

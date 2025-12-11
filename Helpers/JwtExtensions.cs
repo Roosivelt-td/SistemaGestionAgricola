@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-namespace SistemaGestionAgricola.Extensions
+namespace SistemaGestionAgricola.Helpers
 {
     public static class JwtExtensions
     {

@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace SistemaGestionAgricola.Extensions
+namespace SistemaGestionAgricola.Helpers
 {
     public static class JsonExtensions
     {

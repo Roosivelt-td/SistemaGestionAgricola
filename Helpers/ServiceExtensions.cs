@@ -1,6 +1,6 @@
 using SistemaGestionAgricola.Services;
 
-namespace SistemaGestionAgricola.Extensions
+namespace SistemaGestionAgricola.Helpers
 {
     public static class ServiceExtensions
     {
