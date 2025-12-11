@@ -20,8 +20,10 @@ namespace SistemaGestionAgricola.Services
             {
                 TotalCultivos = await _context.Cultivos.CountAsync(),
                 TotalCosechas = await _context.Cosechas.CountAsync(),
-                TotalVentas = await _context.Ventas.CountAsync(),
-                TotalAgricultores = await _context.Agricultores.CountAsync()
+                TotalTerrenos = await _context.Terrenos.CountAsync(),
+                ValorTotalProduccion = 0, // Valor temporal, deberá calcularse según los datos reales
+                ValorTotalVentas = 0, // Valor temporal, deberá calcularse según los datos reales
+                FechaActualizacion = DateTime.UtcNow
             };
 
             return stats;
@@ -36,9 +38,10 @@ namespace SistemaGestionAgricola.Services
                 .GroupBy(c => c.Cultivo.TipoCultivo.Nombre)
                 .Select(g => new ProduccionAnualDto
                 {
-                    TipoCultivo = g.Key,
-                    CantidadTotal = g.Sum(c => c.Cantidad),
-                    UnidadMedida = g.First().UnidadMedida
+                    Anio = year,
+                    Producciones = new List<CultivoReporteDto>(), // Temporal - se debería construir adecuadamente
+                    ValorTotalAnual = 0, // Valor temporal
+                    RendimientoPromedio = 0 // Valor temporal
                 })
                 .ToListAsync();
 
