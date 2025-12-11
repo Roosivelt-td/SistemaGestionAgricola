@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using SistemaGestionAgricola.Data;
 using SistemaGestionAgricola.Interfaces;
 using SistemaGestionAgricola.Models.DTOs;
+using SistemaGestionAgricola.Models.DTOs.Reportes;
 
 namespace SistemaGestionAgricola.Services
 {

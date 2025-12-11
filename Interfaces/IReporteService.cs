@@ -1,4 +1,5 @@
 using SistemaGestionAgricola.Models.DTOs;
+using SistemaGestionAgricola.Models.DTOs.Reportes;
 
 namespace SistemaGestionAgricola.Interfaces
 {

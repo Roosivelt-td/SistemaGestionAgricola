@@ -1,3 +1,5 @@
+using SistemaGestionAgricola.Models.DTOs.Cultivo;
+
 namespace SistemaGestionAgricola.Models.DTOs.Reportes
 {
     public class ProduccionAnualDto
