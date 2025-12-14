@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { validateEmail } from '../../utils/validators';
-import { GoogleLogin } from 'react-google-login';
+import { GoogleLogin } from '@react-oauth/google';
 
 interface FormData {
   email: string;
@@ -65,23 +65,22 @@ const LoginForm: React.FC<{ onSwitchToRegister: () => void }> = ({ onSwitchToReg
     }
   };
 
-  // Configuración para login con Google
-  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID';
-
-  const handleGoogleSuccess = async (response: any) => {
+  // Manejador para login con Google
+  const handleGoogleSuccess = async (credentialResponse: any) => {
     try {
-      // En una implementación real, usarías el token de Google para autenticarte
+      // En una implementación real, usarías el credentialResponse.credential para autenticarte
       // con tu backend y obtener un token JWT
-      console.log('Inicio de sesión con Google exitoso:', response);
+      console.log('Inicio de sesión con Google exitoso:', credentialResponse);
       // Aquí normalmente llamarías a una función para procesar el login de Google
+      // await loginWithGoogle(credentialResponse.credential);
     } catch (error) {
       console.error('Error en el inicio de sesión con Google:', error);
       setGeneralError('Error en el inicio de sesión con Google');
     }
   };
 
-  const handleGoogleFailure = (error: any) => {
-    console.error('Inicio de sesión con Google fallido:', error);
+  const handleGoogleError = () => {
+    console.error('Inicio de sesión con Google fallido');
     setGeneralError('Inicio de sesión con Google fallido');
   };
 
@@ -131,12 +130,9 @@ const LoginForm: React.FC<{ onSwitchToRegister: () => void }> = ({ onSwitchToReg
       <div className="google-login-section">
         <p>O inicia sesión con:</p>
         <GoogleLogin
-          clientId={clientId}
-          buttonText="Iniciar sesión con Google"
           onSuccess={handleGoogleSuccess}
-          onFailure={handleGoogleFailure}
-          cookiePolicy={'single_host_origin'}
-          className="google-login-btn"
+          onError={handleGoogleError}
+          useOneTap
         />
       </div>
       
