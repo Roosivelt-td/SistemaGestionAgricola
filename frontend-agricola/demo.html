@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend Agrícola - Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-container {
+            display: flex;
+            gap: 20px;
+        }
+        .form-section {
+            flex: 1;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        h2 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .google-btn {
+            background-color: #dd4b39;
+        }
+        .google-btn:hover {
+            background-color: #c23321;
+        }
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .success {
+            color: #27ae60;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sistema de Gestión Agrícola - Demo</h1>
+        
+        <div class="form-container">
+            <div class="form-section">
+                <h2>Login</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">Email:</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Contraseña:</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <button type="submit">Login</button>
+                </form>
+                
+                <div style="margin-top: 15px;">
+                    <button class="google-btn" onclick="handleGoogleLogin()">Login con Google</button>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h2>Registro</h2>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="firstName">Nombre:</label>
+                        <input type="text" id="firstName" required>
+                        <div id="firstNameError" class="error"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Apellido:</label>
+                        <input type="text" id="lastName" required>
+                        <div id="lastNameError" class="error"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" required>
+                        <div id="emailError" class="error"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Contraseña:</label>
+                        <input type="password" id="password" required>
+                        <div id="passwordError" class="error"></div>
+                        <small>La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirmar Contraseña:</label>
+                        <input type="password" id="confirmPassword" required>
+                        <div id="confirmPasswordError" class="error"></div>
+                    </div>
+                    <button type="submit">Registrar</button>
+                </form>
+                
+                <div style="margin-top: 15px;">
+                    <button class="google-btn" onclick="handleGoogleRegister()">Registro con Google</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="result" style="margin-top: 20px; padding: 15px; border-radius: 4px; display: none;"></div>
+    </div>
+
+    <script>
+        // Funciones de validación
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+        
+        function validatePassword(password) {
+            const minLength = password.length >= 8;
+            const hasUpperCase = /[A-Z]/.test(password);
+            const hasLowerCase = /[a-z]/.test(password);
+            const hasNumber = /\d/.test(password);
+            const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+            
+            return {
+                isValid: minLength && hasUpperCase && hasLowerCase && hasNumber && hasSpecialChar,
+                requirements: {
+                    minLength,
+                    hasUpperCase,
+                    hasLowerCase,
+                    hasNumber,
+                    hasSpecialChar
+                }
+            };
+        }
+        
+        // Manejo de eventos de formulario
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Obtener valores del formulario
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // Limpiar mensajes de error
+            clearErrors();
+            
+            let isValid = true;
+            
+            // Validar nombre
+            if (!firstName) {
+                showError('firstNameError', 'El nombre es obligatorio');
+                isValid = false;
+            }
+            
+            // Validar apellido
+            if (!lastName) {
+                showError('lastNameError', 'El apellido es obligatorio');
+                isValid = false;
+            }
+            
+            // Validar email
+            if (!email) {
+                showError('emailError', 'El email es obligatorio');
+                isValid = false;
+            } else if (!validateEmail(email)) {
+                showError('emailError', 'Email inválido');
+                isValid = false;
+            }
+            
+            // Validar contraseña
+            const passwordValidation = validatePassword(password);
+            if (!password) {
+                showError('passwordError', 'La contraseña es obligatoria');
+                isValid = false;
+            } else if (!passwordValidation.isValid) {
+                let errorMsg = 'La contraseña no cumple los requisitos:<br>';
+                if (!passwordValidation.requirements.minLength) errorMsg += '- Mínimo 8 caracteres<br>';
+                if (!passwordValidation.requirements.hasUpperCase) errorMsg += '- Una letra mayúscula<br>';
+                if (!passwordValidation.requirements.hasLowerCase) errorMsg += '- Una letra minúscula<br>';
+                if (!passwordValidation.requirements.hasNumber) errorMsg += '- Un número<br>';
+                if (!passwordValidation.requirements.hasSpecialChar) errorMsg += '- Un carácter especial (!@#$%^&*(),.?":{}|<>)';
+                showError('passwordError', errorMsg);
+                isValid = false;
+            }
+            
+            // Validar confirmación de contraseña
+            if (!confirmPassword) {
+                showError('confirmPasswordError', 'Debe confirmar la contraseña');
+                isValid = false;
+            } else if (password !== confirmPassword) {
+                showError('confirmPasswordError', 'Las contraseñas no coinciden');
+                isValid = false;
+            }
+            
+            if (isValid) {
+                showSuccess('Usuario registrado exitosamente!');
+                // Aquí iría la lógica para enviar los datos al backend
+                console.log('Datos de registro:', { firstName, lastName, email, password });
+            }
+        });
+        
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showSuccess('Por favor complete todos los campos');
+                return;
+            }
+            
+            if (!validateEmail(email)) {
+                showSuccess('Email inválido');
+                return;
+            }
+            
+            // Aquí iría la lógica para enviar los datos al backend
+            showSuccess(`Login exitoso para: ${email}`);
+            console.log('Datos de login:', { email, password });
+        });
+        
+        // Funciones auxiliares
+        function showError(elementId, message) {
+            document.getElementById(elementId).innerHTML = message;
+        }
+        
+        function clearErrors() {
+            const errorElements = document.querySelectorAll('.error');
+            errorElements.forEach(el => el.innerHTML = '');
+        }
+        
+        function showSuccess(message) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.style.backgroundColor = '#d5f4e6';
+            resultDiv.innerHTML = '<div class="success">' + message + '</div>';
+            
+            setTimeout(() => {
+                resultDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Simulación de login/register con Google
+        function handleGoogleLogin() {
+            showSuccess('Simulación: Iniciando proceso de login con Google...');
+            console.log('Google login simulado');
+        }
+        
+        function handleGoogleRegister() {
+            showSuccess('Simulación: Iniciando proceso de registro con Google...');
+            console.log('Google register simulado');
+        }
+        
+        // Validación en tiempo real para el campo de contraseña
+        document.getElementById('password').addEventListener('input', function() {
+            const password = this.value;
+            const validation = validatePassword(password);
+            
+            if (password && !validation.isValid) {
+                let errorMsg = 'Requisitos pendientes:<br>';
+                if (!validation.requirements.minLength) errorMsg += '- Mínimo 8 caracteres<br>';
+                if (!validation.requirements.hasUpperCase) errorMsg += '- Mayúscula<br>';
+                if (!validation.requirements.hasLowerCase) errorMsg += '- Minúscula<br>';
+                if (!validation.requirements.hasNumber) errorMsg += '- Número<br>';
+                if (!validation.requirements.hasSpecialChar) errorMsg += '- Carácter especial<br>';
+                
+                document.getElementById('passwordError').innerHTML = errorMsg;
+            } else {
+                document.getElementById('passwordError').innerHTML = '';
+            }
+        });
+    </script>
+</body>
+</html>
