@@ -1,0 +1,177 @@
+.register-form-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding: 20px;
+}
+
+.register-form-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.register-form-card h2 {
+  text-align: center;
+  margin-bottom: 24px;
+  color: #333;
+  font-size: 24px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #555;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.form-group input.error {
+  border-color: #f44336;
+}
+
+.error-message {
+  color: #f44336;
+  font-size: 14px;
+  margin-top: 4px;
+  display: block;
+}
+
+.password-input-container {
+  position: relative;
+}
+
+.password-requirements {
+  background: #fff9c4;
+  border: 1px solid #ffeb3b;
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.password-requirements p {
+  margin: 0 0 8px 0;
+  font-weight: 500;
+  color: #555;
+}
+
+.password-requirements ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.password-requirements li {
+  padding: 2px 0;
+  display: flex;
+  align-items: center;
+}
+
+.password-requirements li::before {
+  content: "✗";
+  color: #f44336;
+  margin-right: 8px;
+  font-weight: bold;
+}
+
+.password-requirements li.valid::before {
+  content: "✓";
+  color: #4CAF50;
+}
+
+.password-requirements li.valid {
+  color: #4CAF50;
+}
+
+.register-button {
+  width: 100%;
+  padding: 14px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 8px;
+}
+
+.register-button:hover:not(:disabled) {
+  background-color: #45a049;
+}
+
+.register-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 24px 0;
+  color: #666;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #ddd;
+}
+
+.divider span {
+  padding: 0 12px;
+}
+
+.google-login-button {
+  width: 100%;
+  padding: 12px;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.google-login-button:hover {
+  background-color: #f5f5f5;
+}
+
+.terms-text {
+  text-align: center;
+  font-size: 12px;
+  color: #777;
+  margin-top: 20px;
+  line-height: 1.4;
+}
