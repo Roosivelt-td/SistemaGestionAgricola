@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using SistemaGestionAgricola.Data;
-using SistemaGestionAgricola.Extensions;
+//using SistemaGestionAgricola.Extensions;
+using SistemaGestionAgricola.Helpers;
+using SistemaGestionAgricola.Middleware;
 using SistemaGestionAgricola.Services;
 
 var builder = WebApplication.CreateBuilder(args);
