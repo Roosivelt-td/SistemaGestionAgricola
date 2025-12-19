@@ -1,0 +1,951 @@
+openapi: 3.0.1
+info:
+  title: Sistema Gestión Agrícola API
+  description: API para el sistema de gestión agrícola
+  version: v1
+  contact:
+    name: Soporte
+    email: soporte@sistemaagricola.com
+servers:
+  - url: http://localhost:5173
+    description: Servidor local de desarrollo
+  - url: https://tu-servidor-produccion.com
+    description: Servidor de producción
+paths:
+  /api/Auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Iniciar sesión
+      description: Permite a un usuario iniciar sesión y obtener un token JWT
+      requestBody:
+        description: Credenciales de inicio de sesión
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: usuario@example.com
+                password:
+                  type: string
+                  format: password
+                  example: contraseña123
+              required:
+                - email
+                - password
+        required: true
+      responses:
+        '200':
+          description: Inicio de sesión exitoso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                      refreshToken:
+                        type: string
+                        example: "refreshtoken123..."
+                      expiresIn:
+                        type: integer
+                        example: 1800
+                  message:
+                    type: string
+                    example: "Inicio de sesión exitoso"
+        '400':
+          description: Credenciales inválidas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Credenciales inválidas"
+        '401':
+          description: Cuenta desactivada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "La cuenta está desactivada"
+  /api/Auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Registrar nuevo usuario
+      description: Registra un nuevo usuario en el sistema
+      requestBody:
+        description: Datos de registro
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nombre:
+                  type: string
+                  example: "Juan Pérez"
+                email:
+                  type: string
+                  format: email
+                  example: "juan.perez@example.com"
+                telefono:
+                  type: string
+                  example: "+1234567890"
+                password:
+                  type: string
+                  format: password
+                  example: "contraseña123"
+                confirmPassword:
+                  type: string
+                  format: password
+                  example: "contraseña123"
+                rol:
+                  type: string
+                  enum: ["admin", "comprador", "agricultor"]
+                  example: "agricultor"
+              required:
+                - nombre
+                - email
+                - password
+                - confirmPassword
+                - rol
+        required: true
+      responses:
+        '200':
+          description: Registro exitoso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Usuario registrado exitosamente"
+        '400':
+          description: Datos de registro inválidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: ["El correo electrónico ya está registrado"]
+  /api/Agricultores:
+    get:
+      tags:
+        - Agricultores
+      summary: Obtener todos los agricultores
+      description: Obtiene una lista de todos los agricultores (requiere rol admin)
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          description: Lista de agricultores obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AgricultorDTO'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "No autorizado"
+        '403':
+          description: Acceso prohibido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Acceso denegado. Se requiere rol admin"
+    post:
+      tags:
+        - Agricultores
+      summary: Crear nuevo agricultor
+      description: Crea un nuevo perfil de agricultor
+      security:
+        - Bearer: []
+      requestBody:
+        description: Datos del nuevo agricultor
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAgricultorDTO'
+        required: true
+      responses:
+        '201':
+          description: Agricultor creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgricultorDTO'
+        '400':
+          description: Datos inválidos
+        '401':
+          description: No autorizado
+        '403':
+          description: Acceso prohibido
+  /api/Agricultores/{id}:
+    get:
+      tags:
+        - Agricultores
+      summary: Obtener agricultor por ID
+      description: Obtiene un agricultor específico por su ID
+      security:
+        - Bearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            example: 1
+      responses:
+        '200':
+          description: Agricultor encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgricultorDTO'
+        '404':
+          description: Agricultor no encontrado
+    put:
+      tags:
+        - Agricultores
+      summary: Actualizar agricultor
+      description: Actualiza un agricultor existente
+      security:
+        - Bearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            example: 1
+      requestBody:
+        description: Datos para actualizar
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAgricultorDTO'
+        required: true
+      responses:
+        '204':
+          description: Agricultor actualizado exitosamente
+        '400':
+          description: Datos inválidos
+        '401':
+          description: No autorizado
+        '403':
+          description: Acceso prohibido
+        '404':
+          description: Agricultor no encontrado
+    delete:
+      tags:
+        - Agricultores
+      summary: Eliminar agricultor
+      description: Elimina un agricultor (requiere rol admin)
+      security:
+        - Bearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            example: 1
+      responses:
+        '204':
+          description: Agricultor eliminado exitosamente
+        '401':
+          description: No autorizado
+        '403':
+          description: Acceso prohibido
+        '404':
+          description: Agricultor no encontrado
+  /api/Compradores:
+    get:
+      tags:
+        - Compradores
+      summary: Obtener todos los compradores
+      description: Obtiene una lista de todos los compradores (requiere rol admin)
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          description: Lista de compradores obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CompradorDTO'
+        '401':
+          description: No autorizado
+        '403':
+          description: Acceso prohibido
+    post:
+      tags:
+        - Compradores
+      summary: Crear nuevo comprador
+      description: Crea un nuevo perfil de comprador
+      security:
+        - Bearer: []
+      requestBody:
+        description: Datos del nuevo comprador
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCompradorDTO'
+        required: true
+      responses:
+        '201':
+          description: Comprador creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompradorDTO'
+        '400':
+          description: Datos inválidos
+        '401':
+          description: No autorizado
+        '403':
+          description: Acceso prohibido
+  /api/Terrenos:
+    get:
+      tags:
+        - Terrenos
+      summary: Obtener todos los terrenos
+      description: Obtiene una lista de todos los terrenos (requiere autenticación)
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          description: Lista de terrenos obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TerrenoDTO'
+        '401':
+          description: No autorizado
+    post:
+      tags:
+        - Terrenos
+      summary: Crear nuevo terreno
+      description: Crea un nuevo terreno
+      security:
+        - Bearer: []
+      requestBody:
+        description: Datos del nuevo terreno
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTerrenoDTO'
+        required: true
+      responses:
+        '201':
+          description: Terreno creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TerrenoDTO'
+        '400':
+          description: Datos inválidos
+        '401':
+          description: No autorizado
+        '403':
+          description: Acceso prohibido
+  /api/Cultivos:
+    get:
+      tags:
+        - Cultivos
+      summary: Obtener todos los cultivos
+      description: Obtiene una lista de todos los cultivos
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          description: Lista de cultivos obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CultivoDTO'
+        '401':
+          description: No autorizado
+    post:
+      tags:
+        - Cultivos
+      summary: Crear nuevo cultivo
+      description: Crea un nuevo cultivo
+      security:
+        - Bearer: []
+      requestBody:
+        description: Datos del nuevo cultivo
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCultivoDTO'
+        required: true
+      responses:
+        '201':
+          description: Cultivo creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CultivoDTO'
+        '400':
+          description: Datos inválidos
+        '401':
+          description: No autorizado
+  /api/Cosechas:
+    get:
+      tags:
+        - Cosechas
+      summary: Obtener todas las cosechas
+      description: Obtiene una lista de todas las cosechas
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          description: Lista de cosechas obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CosechaDTO'
+        '401':
+          description: No autorizado
+    post:
+      tags:
+        - Cosechas
+      summary: Crear nueva cosecha
+      description: Crea una nueva cosecha
+      security:
+        - Bearer: []
+      requestBody:
+        description: Datos de la nueva cosecha
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCosechaDTO'
+        required: true
+      responses:
+        '201':
+          description: Cosecha creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CosechaDTO'
+        '400':
+          description: Datos inválidos
+        '401':
+          description: No autorizado
+  /api/Ventas:
+    get:
+      tags:
+        - Ventas
+      summary: Obtener todas las ventas
+      description: Obtiene una lista de todas las ventas
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          description: Lista de ventas obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VentaDTO'
+        '401':
+          description: No autorizado
+    post:
+      tags:
+        - Ventas
+      summary: Crear nueva venta
+      description: Crea una nueva venta
+      security:
+        - Bearer: []
+      requestBody:
+        description: Datos de la nueva venta
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateVentaDTO'
+        required: true
+      responses:
+        '201':
+          description: Venta creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VentaDTO'
+        '400':
+          description: Datos inválidos
+        '401':
+          description: No autorizado
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Ingresa el token JWT. Ejemplo: Bearer eyJhbGciOi...
+  schemas:
+    AgricultorDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 1
+        usuarioId:
+          type: integer
+          format: int32
+          example: 1
+        dni:
+          type: string
+          example: "12345678A"
+        direccion:
+          type: string
+          example: "Calle Principal 123"
+        experiencia:
+          type: string
+          example: "5 años"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00Z"
+        usuarioNombre:
+          type: string
+          example: "Juan Pérez"
+        usuarioEmail:
+          type: string
+          format: email
+          example: "juan.perez@example.com"
+        usuarioTelefono:
+          type: string
+          example: "+1234567890"
+    CreateAgricultorDTO:
+      type: object
+      properties:
+        usuarioId:
+          type: integer
+          format: int32
+          example: 1
+        dni:
+          type: string
+          example: "12345678A"
+        direccion:
+          type: string
+          example: "Calle Principal 123"
+        experiencia:
+          type: string
+          example: "5 años"
+      required:
+        - usuarioId
+        - dni
+    UpdateAgricultorDTO:
+      type: object
+      properties:
+        dni:
+          type: string
+          example: "12345678A"
+        direccion:
+          type: string
+          example: "Calle Principal 123"
+        experiencia:
+          type: string
+          example: "5 años"
+    CompradorDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 1
+        usuarioId:
+          type: integer
+          format: int32
+          example: 1
+        empresa:
+          type: string
+          example: "Empresa ABC"
+        direccion:
+          type: string
+          example: "Calle Comprador 456"
+        ruc:
+          type: string
+          example: "20123456789"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00Z"
+        usuarioNombre:
+          type: string
+          example: "María López"
+        usuarioEmail:
+          type: string
+          format: email
+          example: "maria.lopez@example.com"
+        usuarioTelefono:
+          type: string
+          example: "+0987654321"
+    CreateCompradorDTO:
+      type: object
+      properties:
+        usuarioId:
+          type: integer
+          format: int32
+          example: 1
+        empresa:
+          type: string
+          example: "Empresa ABC"
+        direccion:
+          type: string
+          example: "Calle Comprador 456"
+        ruc:
+          type: string
+          example: "20123456789"
+      required:
+        - usuarioId
+    TerrenoDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 1
+        agricultorId:
+          type: integer
+          format: int32
+          example: 1
+        nombre:
+          type: string
+          example: "Finca El Paraíso"
+        ubicacion:
+          type: string
+          example: "Calle Terreno 789"
+        area:
+          type: number
+          format: double
+          example: 10.5
+        descripcion:
+          type: string
+          example: "Terreno fértil ideal para cultivos"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00Z"
+        agricultorNombre:
+          type: string
+          example: "Juan Pérez"
+    CreateTerrenoDTO:
+      type: object
+      properties:
+        agricultorId:
+          type: integer
+          format: int32
+          example: 1
+        nombre:
+          type: string
+          example: "Finca El Paraíso"
+        ubicacion:
+          type: string
+          example: "Calle Terreno 789"
+        area:
+          type: number
+          format: double
+          example: 10.5
+        descripcion:
+          type: string
+          example: "Terreno fértil ideal para cultivos"
+      required:
+        - agricultorId
+        - nombre
+        - ubicacion
+        - area
+    CultivoDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 1
+        terrenoId:
+          type: integer
+          format: int32
+          example: 1
+        tipoCultivoId:
+          type: integer
+          format: int32
+          example: 1
+        fechaSiembra:
+          type: string
+          format: date
+          example: "2023-03-15"
+        estado:
+          type: string
+          example: "activo"
+        observaciones:
+          type: string
+          example: "Cuidados especiales"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00Z"
+        nombreTerreno:
+          type: string
+          example: "Finca El Paraíso"
+        nombreTipoCultivo:
+          type: string
+          example: "Maíz"
+    CreateCultivoDTO:
+      type: object
+      properties:
+        terrenoId:
+          type: integer
+          format: int32
+          example: 1
+        tipoCultivoId:
+          type: integer
+          format: int32
+          example: 1
+        fechaSiembra:
+          type: string
+          format: date
+          example: "2023-03-15"
+        estado:
+          type: string
+          example: "activo"
+        observaciones:
+          type: string
+          example: "Cuidados especiales"
+      required:
+        - terrenoId
+        - tipoCultivoId
+        - fechaSiembra
+    CosechaDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 1
+        cultivoId:
+          type: integer
+          format: int32
+          example: 1
+        fechaCosecha:
+          type: string
+          format: date
+          example: "2023-07-20"
+        cantidad:
+          type: number
+          format: double
+          example: 500.0
+        unidad:
+          type: string
+          example: "kg"
+        calidad:
+          type: string
+          example: "buena"
+        observaciones:
+          type: string
+          example: "Buena calidad general"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00Z"
+        nombreCultivo:
+          type: string
+          example: "Maíz"
+    CreateCosechaDTO:
+      type: object
+      properties:
+        cultivoId:
+          type: integer
+          format: int32
+          example: 1
+        fechaCosecha:
+          type: string
+          format: date
+          example: "2023-07-20"
+        cantidad:
+          type: number
+          format: double
+          example: 500.0
+        unidad:
+          type: string
+          example: "kg"
+        calidad:
+          type: string
+          example: "buena"
+        observaciones:
+          type: string
+          example: "Buena calidad general"
+      required:
+        - cultivoId
+        - fechaCosecha
+        - cantidad
+        - unidad
+    VentaDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 1
+        compradorId:
+          type: integer
+          format: int32
+          example: 1
+        cosechaId:
+          type: integer
+          format: int32
+          example: 1
+        fechaVenta:
+          type: string
+          format: date
+          example: "2023-08-01"
+        cantidad:
+          type: number
+          format: double
+          example: 100.0
+        precioUnitario:
+          type: number
+          format: double
+          example: 2.5
+        total:
+          type: number
+          format: double
+          example: 250.0
+        estado:
+          type: string
+          example: "completada"
+        metodoPago:
+          type: string
+          example: "efectivo"
+        observaciones:
+          type: string
+          example: "Pago completo"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00Z"
+        nombreComprador:
+          type: string
+          example: "María López"
+        nombreCosecha:
+          type: string
+          example: "Maíz"
+    CreateVentaDTO:
+      type: object
+      properties:
+        compradorId:
+          type: integer
+          format: int32
+          example: 1
+        cosechaId:
+          type: integer
+          format: int32
+          example: 1
+        fechaVenta:
+          type: string
+          format: date
+          example: "2023-08-01"
+        cantidad:
+          type: number
+          format: double
+          example: 100.0
+        precioUnitario:
+          type: number
+          format: double
+          example: 2.5
+        estado:
+          type: string
+          example: "completada"
+        metodoPago:
+          type: string
+          example: "efectivo"
+        observaciones:
+          type: string
+          example: "Pago completo"
+      required:
+        - compradorId
+        - cosechaId
+        - fechaVenta
+        - cantidad
+        - precioUnitario
