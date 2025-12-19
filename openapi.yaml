@@ -160,6 +160,128 @@ paths:
                     items:
                       type: string
                     example: ["El correo electrónico ya está registrado"]
+
+  /api/Auth/register/email:
+    post:
+      tags:
+        - Auth
+      summary: Enviar código de verificación
+      description: Envío de código de verificación para validar correo existente
+      requestBody:
+        description: Correo electrónico para verificación
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "usuario@example.com"
+              required:
+                - email
+        required: true
+      responses:
+        '200':
+          description: Código enviado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Código de verificación enviado al correo"
+        '400':
+          description: Correo electrónico inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Correo electrónico inválido"
+
+  /api/Auth/register/complete:
+    post:
+      tags:
+        - Auth
+      summary: Completar registro con código
+      description: Registro completado con código validado y datos ingresados
+      requestBody:
+        description: Datos completos de registro con código de verificación
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "usuario@example.com"
+                codigo:
+                  type: string
+                  example: "ABC123"
+                nombre:
+                  type: string
+                  example: "Juan Pérez"
+                telefono:
+                  type: string
+                  example: "+1234567890"
+                password:
+                  type: string
+                  format: password
+                  example: "contraseña123"
+                confirmPassword:
+                  type: string
+                  format: password
+                  example: "contraseña123"
+                rol:
+                  type: string
+                  enum: ["admin", "comprador", "agricultor"]
+                  example: "agricultor"
+              required:
+                - email
+                - codigo
+                - nombre
+                - password
+                - confirmPassword
+                - rol
+        required: true
+      responses:
+        '200':
+          description: Registro completado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Registro completado exitosamente"
+        '400':
+          description: Código de verificación inválido o datos incorrectos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Código de verificación inválido"
   /api/Agricultores:
     get:
       tags:
