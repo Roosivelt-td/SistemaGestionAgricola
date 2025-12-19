@@ -40,8 +40,9 @@ API RESTful para la gestión integral de operaciones agrícolas, incluyendo admi
 
 1. Clonar el repositorio:
 ```bash
-git clone <url-del-repositorio>
+git clone git@github.com:Roosivelt-td/SistemaGestionAgricola.git
 cd SistemaGestionAgricola
+git checkout Develop
 ```
 
 2. Restaurar dependencias:
